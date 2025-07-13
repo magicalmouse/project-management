@@ -11,25 +11,8 @@
     <br />
     <br />
     <br />
-    <a href="https://trendshift.io/repositories/6387" target="_blank"><img src="https://trendshift.io/api/badge/repositories/6387" alt="d3george%2Fslash-admin | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </div>
 
-**English** | [中文](./README.zh-CN.md)
-
-##  Sponsor
-<div style="display: flex; gap: 50px"> 
-  <img style="width:300px" src="https://d3george.github.io/github-static/pay/weixin.jpg" >
-  <img style="width:300px" src="https://d3george.github.io/github-static/pay/buymeacoffee.png" />
-</div>
-
-## Preview
-+ https://admin.slashspaces.com/
-
-|![login.png](https://d3george.github.io/github-static/slash-admin/login.png)|![login_dark.png](https://d3george.github.io/github-static/slash-admin/login_dark.png)
-| ----------------------------------------------------------------- | ------------------------------------------------------------------- |
-|![analysis.png](https://d3george.github.io/github-static/slash-admin/analysis.png)|![workbench.png](https://d3george.github.io/github-static/slash-admin/workbench.png)
-| | 
-|![analysis.png](https://d3george.github.io/github-static/slash-admin/mobile.png)|![workbench.png](https://d3george.github.io/github-static/slash-admin/mobile_dark.png)
 
 ## Features
 
@@ -106,8 +89,13 @@ create table public.interviews (
   interviewer text null,
   progress smallint null default '0'::smallint,
   meeting_title text null,
+  "user" uuid null,
+  profile uuid null,
+  job_description text null,
   constraint interviews_pkey primary key (id),
-  constraint interviews_proposal_fkey foreign KEY (proposal) references proposals (id) on delete CASCADE
+  constraint interviews_profile_fkey foreign KEY (profile) references profiles (id) on delete CASCADE,
+  constraint interviews_proposal_fkey foreign KEY (proposal) references proposals (id) on delete CASCADE,
+  constraint interviews_user_fkey foreign KEY ("user") references users (id) on delete CASCADE
 ) TABLESPACE pg_default;
 
 create table public.profiles (
@@ -133,6 +121,8 @@ create table public.proposals (
   resume text null,
   cover_letter text null,
   "user" uuid null,
+  job_link text null,
+  company text null,
   constraint proposals_pkey primary key (id),
   constraint proposals_profile_fkey foreign KEY (profile) references profiles (id) on delete CASCADE,
   constraint proposals_user_fkey foreign KEY ("user") references users (id) on delete CASCADE
