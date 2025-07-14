@@ -67,7 +67,8 @@ export default function ResumeBuilder({ resume, job_description, onResumeChange,
 
       Format the entire resume in Markdown, strictly adhering to these rules:
       * The first line must be the candidate's name using a single hash ("#").
-      * All contact information ("LinkedIn URL", "Phone Number", "Email", "Location") must be on one single line, separated by a pipe ("|").
+      * All contact information ("Phone Number", "Email", "Location") must be on one single line, separated by a pipe ("|"). Phone number should have "@@" prefix.
+			* And LinkedIn address on next line like "https://www.linkedin.com/in/..." with "@@" prefix for making line in center.
       * Use a triple hash ("##") for top-level section headings (e.g., "## Summary", "## Education", "## Key Skills", "## Work Experience", "## Clearance").
       * For each work experience entry, the "Job Title", "Company Name", "Location", and "Employment Period" must be on one single line, separated by pipes ("|"). For example: "**Job Title** | Company Name – City, State / Remote | Month Year – Month Year".
       * Use "**" for bolding text.
