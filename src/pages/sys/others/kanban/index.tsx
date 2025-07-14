@@ -2,15 +2,7 @@ import { Icon } from "@/components/icon";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { ScrollArea, ScrollBar } from "@/ui/scroll-area";
-import {
-	DndContext,
-	type DragEndEvent,
-	DragOverlay,
-	type DragStartEvent,
-	PointerSensor,
-	useSensor,
-	useSensors,
-} from "@dnd-kit/core";
+import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import { faker } from "@faker-js/faker";
 import { useRef, useState } from "react";
@@ -64,9 +56,7 @@ export default function Kanban() {
 			} else {
 				// 处理任务的拖拽
 				const activeColumn = Object.values(state.columns).find((col) => col.taskIds.includes(active.id as string));
-				const overColumn = Object.values(state.columns).find(
-					(col) => col.taskIds.includes(over.id as string) || col.id === over.id,
-				);
+				const overColumn = Object.values(state.columns).find((col) => col.taskIds.includes(over.id as string) || col.id === over.id);
 
 				if (!activeColumn || !overColumn) return;
 
@@ -94,11 +84,7 @@ export default function Kanban() {
 					const destinationTaskIds = [...overColumn.taskIds];
 					const overTaskIndex = overColumn.taskIds.indexOf(over.id as string);
 
-					destinationTaskIds.splice(
-						overTaskIndex >= 0 ? overTaskIndex : destinationTaskIds.length,
-						0,
-						active.id as string,
-					);
+					destinationTaskIds.splice(overTaskIndex >= 0 ? overTaskIndex : destinationTaskIds.length, 0, active.id as string);
 
 					setState({
 						...state,
@@ -133,7 +119,6 @@ export default function Kanban() {
 				});
 			}
 			setAddingColumn(false);
-			console.log("click outside");
 		}
 	};
 	useEvent("click", handleClickOutside);
@@ -273,9 +258,7 @@ export default function Kanban() {
 									isDragging
 								/>
 							) : null}
-							{activeId && activeType === "task" ? (
-								<KanbanTask id={activeId} task={state.tasks[activeId]} isDragging />
-							) : null}
+							{activeId && activeType === "task" ? <KanbanTask id={activeId} task={state.tasks[activeId]} isDragging /> : null}
 						</DragOverlay>
 					</div>
 				</DndContext>

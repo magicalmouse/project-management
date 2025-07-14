@@ -20,19 +20,18 @@ function RegisterForm() {
 			toast.error(`Sign up Error! ${err.message}`, {
 				position: "top-center",
 			});
-		}
+		},
 	});
 
 	const form = useForm({
 		defaultValues: {
 			email: "",
 			password: "",
-			confirmPassword: ""
+			confirmPassword: "",
 		},
 	});
 
 	const onFinish = async (values: any) => {
-		console.log("Received values of form: ", values);
 		const { confirmPassword, ...signUpData } = values;
 		await signUpMutation.mutateAsync(signUpData);
 		toast.success("Sign up success! Please confirm your email address.", {

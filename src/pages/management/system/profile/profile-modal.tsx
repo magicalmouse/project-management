@@ -40,7 +40,7 @@ export default function ProfileModal({ title, show, formValue, onOk, onCancel }:
 			value: user.id ?? "",
 		}));
 		setUsers(temp_users);
-	}, [getUserList]);
+	}, []);
 
 	useEffect(() => {
 		form.reset(formValue);

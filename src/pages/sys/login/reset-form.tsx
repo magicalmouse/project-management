@@ -13,10 +13,9 @@ function ResetForm() {
 	const { t } = useTranslation();
 	const { loginState, backToLogin } = useLoginStateContext();
 	const form = useForm();
-	const {forgotPassword, isLoading} = useForgotPassword();
+	const { forgotPassword, isLoading } = useForgotPassword();
 
 	const onFinish = (values: any) => {
-		console.log("Received values of form: ", values);
 		forgotPassword(values.email);
 	};
 

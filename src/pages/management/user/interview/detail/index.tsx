@@ -130,7 +130,6 @@ export default function InterviewPage() {
 	};
 
 	const onEdit = (formValue: InterviewInfo) => {
-		console.log("onEdit", formValue);
 		setInterviewModalProps((prev) => ({
 			...prev,
 			show: true,
@@ -144,7 +143,6 @@ export default function InterviewPage() {
 	};
 
 	const onDelete = async (formValue: InterviewInfo) => {
-		console.log("onDelete", formValue);
 		await deleteInterview(formValue.id);
 		fetchData();
 	};
