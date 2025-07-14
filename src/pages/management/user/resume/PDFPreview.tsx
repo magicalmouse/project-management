@@ -3,19 +3,20 @@ import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+import { GLOBAL_CONFIG } from "@/global-config";
 
 interface PdfPreviewProps {
-  fileUrl: string;
+	fileUrl: string;
 }
 
 const PDFPreview: React.FC<PdfPreviewProps> = ({ fileUrl }) => {
-  const plugin = defaultLayoutPlugin();
+	const plugin = defaultLayoutPlugin();
 
-  return (
-    <Worker workerUrl={`/pdf.worker.min.js`}>
-      <Viewer fileUrl={fileUrl} plugins={[plugin]} />
-    </Worker>
-  );
+	return (
+		<Worker workerUrl={`${GLOBAL_CONFIG.defaultRoute}pdf.worker.min.js`}>
+			<Viewer fileUrl={fileUrl} plugins={[plugin]} />
+		</Worker>
+	);
 };
 
 export default PDFPreview;
