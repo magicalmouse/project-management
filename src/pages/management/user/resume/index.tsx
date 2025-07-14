@@ -111,7 +111,7 @@ export default function ResumeBuilder({ resume, job_description, onResumeChange,
 		const a = document.createElement("a");
 		a.href = generatedPdfUrl;
 		const timeSalt = new Date().toLocaleString().replace(/[/:.,]/g, "-");
-		const resumePDF = `generated_resume-${timeSalt}.pdf`;
+		const resumePDF = `resume-${timeSalt}.pdf`;
 		onResumeChange(resumePDF);
 		a.download = resumePDF;
 		a.click();

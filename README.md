@@ -180,7 +180,7 @@ with check (
   (EXISTS ( SELECT 1
    FROM users
   WHERE (users.id = auth.uid())))
-);
+));
 
 handle_profile_policy
 alter policy "handle_profile_policy"
@@ -194,7 +194,7 @@ with check (
 (EXISTS ( SELECT 1
    FROM users
   WHERE ((users.id = auth.uid()) AND (users.role = 0))))
-);
+));
 
 handle_interview_policy
 alter policy "handle_interview_policy"
@@ -208,6 +208,6 @@ with check (
 (EXISTS ( SELECT 1
    FROM users
   WHERE (users.id = auth.uid())))
-);
+));
 
 
