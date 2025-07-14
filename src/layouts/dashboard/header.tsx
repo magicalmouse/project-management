@@ -1,13 +1,6 @@
-import { Icon } from "@/components/icon";
-import LocalePicker from "@/components/locale-picker";
-import { useSettings } from "@/store/settingStore";
-import { Button } from "@/ui/button";
 import { cn } from "@/utils";
 import type { ReactNode } from "react";
 import AccountDropdown from "../components/account-dropdown";
-import BreadCrumb from "../components/bread-crumb";
-import NoticeButton from "../components/notice";
-import SearchBar from "../components/search-bar";
 import SettingButton from "../components/setting-button";
 
 interface HeaderProps {
@@ -15,7 +8,6 @@ interface HeaderProps {
 }
 
 export default function Header({ leftSlot }: HeaderProps) {
-	const { breadCrumb } = useSettings();
 	return (
 		<header
 			data-slot="slash-layout-header"
@@ -24,8 +16,7 @@ export default function Header({ leftSlot }: HeaderProps) {
 				"h-[var(--layout-header-height)] grow-0 shrink-0",
 			)}
 		>
-			<div className="flex items-center">
-			</div>
+			<div className="flex items-center" />
 			<div className="flex items-center gap-1">
 				<SettingButton />
 				<AccountDropdown />

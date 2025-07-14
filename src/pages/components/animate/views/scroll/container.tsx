@@ -11,14 +11,10 @@ export default function ContainerView({ variant }: Props) {
 	const varients = useMemo(() => getVariant(variant), [variant]);
 
 	return (
-		<div
-			key={variant}
-			className="h-[480px] overflow-auto rounded-lg px-20"
-			style={{ backgroundColor: themeVars.colors.background.neutral }}
-		>
+		<div key={variant} className="h-[480px] overflow-auto rounded-lg px-20" style={{ backgroundColor: themeVars.colors.background.neutral }}>
 			{[...Array(40)].map((_, index) => (
 				// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-				<MotionViewport key={index} variants={varients} className="mt-4">
+				<MotionViewport key={index} className="mt-4">
 					<Card>
 						<span className="text-center">Item {index + 1}</span>
 					</Card>

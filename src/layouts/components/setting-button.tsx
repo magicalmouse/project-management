@@ -3,25 +3,18 @@ import RedBlur from "@/assets/images/background/red-blur.png";
 import { Icon } from "@/components/icon";
 import { type SettingsType, useSettingActions, useSettings } from "@/store/settingStore";
 import { themeVars } from "@/theme/theme.css";
-import { presetsColors } from "@/theme/tokens/color";
-import { FontFamilyPreset } from "@/theme/tokens/typography";
 import { Button } from "@/ui/button";
 import { Card } from "@/ui/card";
 import { ScrollArea } from "@/ui/scroll-area";
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/ui/sheet";
-import { Slider } from "@/ui/slider";
-import { Switch } from "@/ui/switch";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/tooltip";
-import { cn } from "@/utils";
-import { type CSSProperties, useState } from "react";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/ui/sheet";
 import { useTranslation } from "react-i18next";
-import screenfull from "screenfull";
-import { type ThemeColorPresets, ThemeLayout, ThemeMode } from "#/enum";
+import { ThemeMode } from "#/enum";
+import type { CSSProperties } from "react";
 
 export default function SettingButton() {
 	const { t } = useTranslation();
 	const settings = useSettings();
-	const { themeMode, themeColorPresets, themeLayout, themeStretch, breadCrumb, fontSize, fontFamily } = settings;
+	const { themeMode } = settings;
 	const { setSettings } = useSettingActions();
 
 	const updateSettings = (partialSettings: Partial<SettingsType>) => {
@@ -38,19 +31,6 @@ export default function SettingButton() {
 		backgroundPosition: "right top, left bottom",
 		backgroundSize: "50, 50%",
 	};
-
-	const [isFullscreen, setIsFullscreen] = useState(screenfull.isFullscreen);
-	const toggleFullScreen = () => {
-		if (screenfull.isEnabled) {
-			screenfull.toggle();
-			setIsFullscreen(!isFullscreen);
-		}
-	};
-
-	const layoutBackground = (layout: ThemeLayout) =>
-		themeLayout === layout
-			? `linear-gradient(135deg, ${themeVars.colors.background.neutral} 0%, ${themeVars.colors.palette.primary.default} 100%)`
-			: themeVars.colors.palette.gray[500];
 
 	return (
 		<Sheet modal={false}>

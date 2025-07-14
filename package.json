@@ -3,7 +3,6 @@
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
-	"homepage": "https://github.com/d3george/slash-admin",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
@@ -107,13 +106,9 @@
 	},
 	"packageManager": "pnpm@10.8.0",
 	"msw": {
-		"workerDirectory": [
-			"public"
-		]
+		"workerDirectory": ["public"]
 	},
 	"commitlint": {
-		"extends": [
-			"@commitlint/config-conventional"
-		]
+		"extends": ["@commitlint/config-conventional"]
 	}
 }

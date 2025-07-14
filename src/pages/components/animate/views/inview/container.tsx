@@ -25,9 +25,7 @@ export default function ContainerView({ isText, variant, isMulti }: Props) {
 			{isText ? (
 				<MotionContainer className="flex h-[480px] items-center justify-center font-bold md:text-6xl">
 					{TEXT.split("").map((letter) => (
-						<m.div key={letter} variants={varients}>
-							{letter}
-						</m.div>
+						<m.div key={letter}>{letter}</m.div>
 					))}
 				</MotionContainer>
 			) : (
@@ -43,7 +41,6 @@ export default function ContainerView({ isText, variant, isMulti }: Props) {
 								margin: "auto",
 								borderRadius: "8px",
 							}}
-							variants={varients}
 						/>
 					))}
 				</MotionContainer>

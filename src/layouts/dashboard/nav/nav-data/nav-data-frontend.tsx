@@ -1,6 +1,5 @@
 import { Icon } from "@/components/icon";
 import type { NavProps } from "@/components/nav";
-import { Badge } from "@/ui/badge";
 
 export const frontendNavData: NavProps["data"] = [
 	{
@@ -35,7 +34,6 @@ export const frontendNavData: NavProps["data"] = [
 					},
 				],
 			},
-			
 		],
 	},
 	{
@@ -62,7 +60,7 @@ export const frontendNavData: NavProps["data"] = [
 						path: "/user/interview",
 						auth: ["permission:user"],
 					},
-				]
+				],
 			},
 		],
 	},

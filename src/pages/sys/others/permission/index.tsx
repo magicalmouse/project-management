@@ -82,14 +82,14 @@ checkAll(["permission:read", "permission:create"]) ? (
 
 export default function PermissionPage() {
 	const { permissions, roles, username } = useUserInfo();
-	const {signIn} = useSignIn();
+	const { signIn } = useSignIn();
 	const { check, checkAny, checkAll } = useAuthCheck();
 
 	const handleSwitch = (_username: string) => {
 		if (_username === username) return;
 		const user = DB_USER.find((user) => user.username === _username);
 		if (user) {
-			signIn({ username: user.username, password: user.password });
+			// signIn({ username: user.username, password: user.password });
 		}
 	};
 	return (

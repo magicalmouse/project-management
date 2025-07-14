@@ -13,17 +13,9 @@ export default function ContainerView({ variant }: Props) {
 	const isKenburns = variant.includes("kenburns");
 
 	return (
-		<div
-			key={variant}
-			className="h-[480px] overflow-hidden rounded-lg"
-			style={{ backgroundColor: themeVars.colors.background.neutral }}
-		>
+		<div key={variant} className="h-[480px] overflow-hidden rounded-lg" style={{ backgroundColor: themeVars.colors.background.neutral }}>
 			<MotionContainer className="flex h-full w-full flex-col items-center gap-6">
-				{isKenburns ? (
-					<m.img src={Cover3} className="h-full w-full object-cover" variants={varients} />
-				) : (
-					<m.div {...varients} className="h-full w-full" />
-				)}
+				{isKenburns ? <m.img src={Cover3} className="h-full w-full object-cover" /> : <m.div className="h-full w-full" />}
 			</MotionContainer>
 		</div>
 	);
