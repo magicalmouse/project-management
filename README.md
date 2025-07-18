@@ -79,7 +79,9 @@ pnpm build
 - `wip` in development
 
 
-## Supabase configuration
+### Supabase configuration
+
+# Table configuration
 create table public.interviews (
   id uuid not null default gen_random_uuid (),
   created_at timestamp with time zone not null default now(),
@@ -143,6 +145,7 @@ create table public.users (
   constraint username_length check ((char_length(username) >= 3))
 ) TABLESPACE pg_default;
 
+# Policy configuration
 
 Public users are viewable by everyone.
 alter policy "Public users are viewable by everyone."
@@ -210,4 +213,14 @@ with check (
   WHERE (users.id = auth.uid())))
 ));
 
+# Database function configuration
+handle_new_user
+begin
+  insert into public.users (id, username, email, country, status, role)
+  values (new.id, new.raw_user_meta_data->>'username', new.email, new.raw_user_meta_data->>'country', COALESCE((new.raw_user_meta_data->>'status')::smallint, 1), COALESCE((new.raw_user_meta_data->>'role')::smallint, 1));
+  return new;
+end;
 
+You can create table in the SQL Editor(sidebar menu) of supbase dashboard using above table schemas.
+For each table, you need to set policies.(sidebar menu: Authentication => Policies)
+Since we use custom user table(which is public user table), we should set the database function(sidebar menu: Database => Functions).
