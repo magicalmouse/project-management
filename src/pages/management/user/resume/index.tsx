@@ -81,18 +81,34 @@ export default function ResumeBuilder({ resume, job_description, onResumeChange,
       ${jobDescription}`;
 
 		try {
-			const response = await fetch(`${GLOBAL_CONFIG.geminiApiUrl}?key=${GLOBAL_CONFIG.geminiApiKey}`, {
+			// const response = await fetch(`${GLOBAL_CONFIG.geminiApiUrl}?key=${GLOBAL_CONFIG.geminiApiKey}`, {
+			// 	method: "POST",
+			// 	headers: { "Content-Type": "application/json" },
+			// 	body: JSON.stringify({
+			// 		contents: [{ parts: [{ text: prompt }] }],
+			// 	}),
+			// });
+
+			// const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+			const response = await fetch(GLOBAL_CONFIG.openAIUrl, {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${GLOBAL_CONFIG.openAIKey}` 
+				},
 				body: JSON.stringify({
-					contents: [{ parts: [{ text: prompt }] }],
+					model: "gpt-4o",
+					messages: [
+						{ role: "user", content: prompt }
+					]
 				}),
 			});
 
 			if (!response.ok) throw new Error("Failed to generate resume");
 
 			const result = await response.json();
-			const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+			const text = result?.choices?.[0]?.message?.content;
 			if (!text) throw new Error("No content returned");
 
 			// Convert Markdown to PDF using ResumePDF component

@@ -22,6 +22,10 @@ export type GlobalConfig = {
 	geminiApiUrl: string;
 
 	geminiApiKey: string;
+
+	openAIUrl: string;
+
+	openAIKey: string;
 };
 
 /**
@@ -41,4 +45,6 @@ export const GLOBAL_CONFIG: GlobalConfig = {
 	routerMode: import.meta.env.VITE_APP_ROUTER_MODE || "frontend",
 	geminiApiUrl: import.meta.env.VITE_GEMINI_API_URL,
 	geminiApiKey: import.meta.env.VITE_GEMINI_API_KEY,
+	openAIUrl: import.meta.env.VITE_OPENAI_URL,
+	openAIKey: import.meta.env.VITE_OPENAI_KEY,
 };
