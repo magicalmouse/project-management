@@ -136,4 +136,5 @@ export interface InterviewInfo {
 	interviewer?: string;
 	user: string | Partial<UserInfo>;
 	profile: string | Partial<ProfileInfo>;
+	created_at?: string;
 }

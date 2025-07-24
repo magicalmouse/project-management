@@ -114,7 +114,7 @@ export default function InterviewModal({ title, show, formValue, onOk, onCancel 
 										<Input
 											type="datetime-local"
 											value={field.value ? dayjs(field.value).format("YYYY-MM-DDTHH:mm") : ""}
-											onChange={(e) => field.onChange(e.target.value ? dayjs(e.target.value).toDate() : null)}
+											onChange={(e) => field.onChange(e.target.value ? dayjs(e.target.value).toISOString() : null)}
 										/>
 									</FormControl>
 									<FormMessage />

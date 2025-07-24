@@ -352,7 +352,10 @@ export default function ProjectPage() {
 					dataSource={dataSource}
 					rowSelection={rowSelection}
 					rowClassName={(record, index) => {
-						return isInterviewed(record.id) ? "bg-green-50" : "";
+						if (isInterviewed(record.id)) {
+							return "bg-green-50 dark:bg-green-900/30";
+						}
+						return "";
 					}}
 				/>
 			</CardContent>

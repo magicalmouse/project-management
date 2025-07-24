@@ -3,13 +3,15 @@ import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
 import Table, { type ColumnsType } from "antd/es/table";
-import { useEffect, useState } from "react";
+import { Key, useEffect, useState } from "react";
 import type { InterviewInfo } from "#/entity";
 import InterviewModal, { Interview_Progress_Default, type InterviewModalProps } from "./interview-modal";
 import { useParams, useRouter } from "@/routes/hooks";
 import { InterviewProgress } from "@/types/enum";
 import { useDeleteInterview, useGetInterviewList } from "@/store/interviewStore";
 import { useUserInfo } from "@/store/userStore";
+import dayjs, { Dayjs } from "dayjs";
+import { DatePicker, Space } from "antd";
 
 const defaultInterviewValue: InterviewInfo = {
 	id: "",
@@ -53,10 +55,17 @@ export default function InterviewPage() {
 
 	const columns: ColumnsType<InterviewInfo> = [
 		{
+			title: "#",
+			dataIndex: "id",
+			width: 50,
+			sorter: (a, b) => new Date(a.created_at!).getTime() - new Date(b.created_at!).getTime(),
+			defaultSortOrder: "descend",
+			render: (_, __, index) => index + 1,
+		},
+		{
 			title: "Meeting Title",
 			dataIndex: "meeting_title",
 			width: 150,
-			sorter: (a, b) => a.id.localeCompare(b.id),
 			render: (_, record) => <div>{record.meeting_title}</div>,
 		},
 		{
@@ -69,7 +78,70 @@ export default function InterviewPage() {
 			title: "Meeting Date",
 			dataIndex: "meeting_date",
 			width: 50,
-			render: (_, record) => <Badge variant="info">{record.meeting_date}</Badge>,
+			filterDropdown: ({
+				setSelectedKeys,
+				selectedKeys,
+				confirm,
+				clearFilters,
+			}: {
+				setSelectedKeys: (selectedKeys: Key[]) => void;
+				selectedKeys: Key[];
+				confirm: () => void;
+				clearFilters?: () => void;
+			}) => {
+				// safely cast stored ISO strings back to Dayjs range
+				const value = Array.isArray(selectedKeys[0]) ? (selectedKeys[0] as string[]) : [];
+
+				const rangeValue: [Dayjs, Dayjs] | undefined = value.length === 2 ? [dayjs(value[0]), dayjs(value[1])] : undefined;
+
+				return (
+					<div style={{ padding: 8 }}>
+						<DatePicker.RangePicker
+							value={rangeValue}
+							onChange={(dates) => {
+								if (dates && dates[0] && dates[1]) {
+									const isoRange = [dates[0].toISOString(), dates[1].toISOString()];
+									setSelectedKeys([isoRange as unknown as Key]);
+								} else {
+									setSelectedKeys([]);
+								}
+							}}
+							style={{ marginBottom: 8, display: "block" }}
+						/>
+						<Space>
+							<Button onClick={() => confirm()} className="w-20">
+								Filter
+							</Button>
+							<Button
+								onClick={() => {
+									clearFilters?.();
+									confirm();
+								}}
+								className="w-20"
+							>
+								Reset
+							</Button>
+						</Space>
+					</div>
+				);
+			},
+			onFilter: (value: Key | boolean, record: InterviewInfo) => {
+				const [start, end] = value as unknown as string[];
+
+				const dateValue = record["meeting_date"];
+				if (!dateValue) return false;
+
+				const recordDate = dayjs(dateValue);
+				return recordDate.isAfter(dayjs(start)) && recordDate.isBefore(dayjs(end));
+			},
+			// render: (_, record) => <div>{new Date(record.created_at!).toLocaleString()}</div>,
+			render: (_, record) => {
+				const utcDate = new Date(record.meeting_date);
+				const estDate = new Date(utcDate.getTime() - 4 * 60 * 60 * 1000);
+				const formatted = estDate.toISOString().slice(0, 16).replace("T", " ");
+
+				return <Badge variant="info">{formatted}</Badge>;
+			},
 		},
 		{
 			title: "Job Description",
@@ -152,6 +224,9 @@ export default function InterviewPage() {
 		setDataSource(data);
 	};
 
+	const isInterviewSuccess = (progress: InterviewProgress) => progress === InterviewProgress.SUCCESS;
+	const isInterviewFail = (progress: InterviewProgress) => progress === InterviewProgress.FAIL;
+
 	return (
 		<Card>
 			<CardHeader>
@@ -171,6 +246,15 @@ export default function InterviewPage() {
 					loading={isGetInterviewLoading || isDeleteInterviewLoading}
 					columns={columns}
 					dataSource={dataSource}
+					rowClassName={(record) => {
+						if (isInterviewSuccess(record.progress)) {
+							return "bg-green-50 dark:bg-green-900/30";
+						}
+						if (isInterviewFail(record.progress)) {
+							return "bg-red-50 dark:bg-red-900/30";
+						}
+						return "";
+					}}
 				/>
 			</CardContent>
 			<InterviewModal {...interviewModalProps} />
