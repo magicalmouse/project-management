@@ -98,7 +98,7 @@ export default function ResumeBuilder({ resume, job_description, onResumeChange,
 					"Authorization": `Bearer ${GLOBAL_CONFIG.openAIKey}` 
 				},
 				body: JSON.stringify({
-					model: "gpt-4o",
+					model: "gpt-3.5-turbo",
 					messages: [
 						{ role: "user", content: prompt }
 					]
