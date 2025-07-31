@@ -58,27 +58,59 @@ export default function ResumeBuilder({ resume, job_description, onResumeChange,
 
 		const resume = await extractText();
 
-		const prompt = `Tailor the existing resume to perfectly match the jobdescription provided. This task involves analyzing the job description in detail to understand the specific skills, experiences, and qualifications the employer is seeking. Then, meticulously revise the existing resume to highlight the most relevant aspects of the candidate's background. This includes rephrasing bullet points to emphasize transferable skills, prioritizing experiences that directly relate to the job requirements, and ensuring the resume format and design are professional and it should give non ai generated feeling. Incorporate keywords from the job description to ensure the resume passes through Applicant Tracking Systems (ATS) effectively.   use strong power action verbs but not repeated more than once. Make important verbs and words in bold. add metrics and match all the exact keywords from the job to my summary, experience, soft and hard skills and education. The summary should include my relevant professional experience like my job title and experience in the field and mention my areas of expertise, specializations and skill and one or two impressive achievements to show what I can do and how I can contribute to the company. The summary should be no more than 5 sentences. In the work experience, each experience must include more than 8 lists in details and the right key words that match the job description. It should not be too small. Skills must include more than 8 lists with bullet points that match the job description and others that is relevant. adjust the job titles to best fit the job. It should not be too small. Use words (Adaptability/flexibility, creativity, problem solving, Curiosity, Emotional intelligence, Persistence, Relationship-building, Resourcefulness, sophisticated knowledge, mastery, realized, transformed, augmented.) in the resume. These words (experience, expertise, achieved, influenced, increased) are not recommended in the resume. Update personal expereicne to follow the job description perfectly.
+		const resumeJsonFormat = `
+		{
+			"name": "",
+			"location": "",
+			"email": "",
+			"phone": "",
+			"linkedin": "",
+			"summary": "",
+			"skills": {
+				"programming_languages": [""],
+				"frontend": [""],
+				"backend": [""],
+				"database": [""],
+				"cloud": [""],
+				"tools": [""]
+			},
+			"experience": [
+				{
+					"title": "",
+					"company": "",
+					"duration": "",
+					"location": "",
+					"responsibilities": [
+						"",
+					]
+				},
+			],
+			"education": {
+				"degree": "",
+				"institution": "",
+				"location": "",
+				"year": ""
+			}
+		}
+		`;
+
+		const prompt = `
+			Tailor the existing resume to perfectly match the job description provided. This task involves analyzing the job description in detail to understand the specific skills, experiences, and qualifications the employer is seeking. Then, meticulously revise the existing resume to highlight the most relevant aspects of the candidate's background. This includes rephrasing bullet points to emphasize transferable skills, prioritizing experiences that directly relate to the job requirements, and ensuring the resume format and design are professional and it should give non ai generated feeling. Incorporate keywords from the job description to ensure the resume passes through Applicant Tracking Systems (ATS) effectively.   use strong power action verbs but not repeated more than once. Make important verbs and words in bold. add metrics and match all the exact keywords from the job to my summary, experience, soft and hard skills and education. The summary should include my relevant professional experience like my job title and experience in the field and mention my areas of expertise, specializations and skill and one or two impressive achievements to show what I can do and how I can contribute to the company. The summary should be no more than 5 sentences. In the work experience, each experience must include more than 8 lists in details and the right key words that match the job description. It should not be too small. Skills must include more than 8 lists with bullet points that match the job description and others that is relevant. adjust the job titles to best fit the job. It should not be too small. Use words (Adaptability/flexibility, creativity, problem solving, Curiosity, Emotional intelligence, Persistence, Relationship-building, Resourcefulness, sophisticated knowledge, mastery, realized, transformed, augmented.) in the resume. These words (experience, expertise, achieved, influenced, increased) are not recommended in the resume. Update personal expereicne to follow the job description perfectly.
       Ensure the revised resume is:
       * Highly relevant: Maximize alignment with the job description for ATS optimization.
       * Detailed and professional: Provide specific examples and quantifiable achievements where applicable, maintaining a natural, human-written tone.
       * Concise: Remove any irrelevant information not pertinent to the job description.
       * Clearence: Don't include any clearence in the resume.
 
-      Format the entire resume in Markdown, strictly adhering to these rules:
-      * The first line must be the candidate's name using a single hash ("#").
-      * All contact information ("Phone Number", "Email", "Location") must be on one single line, separated by a pipe ("|"). Phone number should have "@@" prefix.
-			* And LinkedIn address on next line like "https://www.linkedin.com/in/..." with "@@" prefix for making line in center.
-      * Use a triple hash ("##") for top-level section headings (e.g., "## Summary", "## Education", "## Key Skills", "## Work Experience", "## Clearance").
-      * For each work experience entry, the "Job Title", "Company Name", "Location", and "Employment Period" must be on one single line, separated by pipes ("|"). For example: "**Job Title** | Company Name – City, State / Remote | Month Year – Month Year".
-      * Use "**" for bolding text.
-      * Ensure proper Markdown spacing and line breaks for readability.
-
-      Return only the complete, updated resume content in Markdown format, with no additional explanations or conversational text. The output should be ready for immediate use without further editing.
+      Return only the complete, updated resume content in JSON format, with no additional explanations or conversational text. The output should be ready for immediate use without further editing.
       Resume:
       ${resume}
       Job Description:
-      ${jobDescription}`;
+      ${jobDescription}
+			JSON Format:
+			${resumeJsonFormat}
+			`
+			;
 
 		try {
 			// const response = await fetch(`${GLOBAL_CONFIG.geminiApiUrl}?key=${GLOBAL_CONFIG.geminiApiKey}`, {
@@ -112,7 +144,7 @@ export default function ResumeBuilder({ resume, job_description, onResumeChange,
 			if (!text) throw new Error("No content returned");
 
 			// Convert Markdown to PDF using ResumePDF component
-			const blob = await pdf(<ResumePDF markdownText={text} />).toBlob();
+			const blob = await pdf(<ResumePDF resume={JSON.parse(text)} />).toBlob();
 			const blobUrl = URL.createObjectURL(blob);
 			setGeneratedPdfUrl(blobUrl);
 		} catch (error) {
