@@ -35,9 +35,8 @@ export default defineConfig(({ mode }) => {
 			port: 3001,
 			proxy: {
 				"/api": {
-					target: "http://localhost:3000",
+					target: "http://localhost:4000",
 					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/api/, ""),
 					secure: false,
 				},
 			},
@@ -63,7 +62,7 @@ export default defineConfig(({ mode }) => {
 
 		optimizeDeps: {
 			include: ["react", "react-dom", "react-router", "antd", "axios", "dayjs"],
-			exclude: ["@iconify/react"],
+			exclude: ["@iconify/react", "mysql2", "bcryptjs", "jsonwebtoken"],
 		},
 
 		esbuild: {

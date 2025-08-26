@@ -3,64 +3,55 @@ import type { NavProps } from "@/components/nav";
 
 export const frontendNavData: NavProps["data"] = [
 	{
-		name: "sys.nav.dashboard",
+		name: "",
 		items: [
-			// management
 			{
-				title: "sys.nav.management",
-				path: "/management",
+				title: "Admin Dashboard",
+				path: "/admin-dashboard",
+				icon: <Icon icon="mdi:view-dashboard" size="24" />,
 				auth: ["permission:admin"],
-				icon: <Icon icon="local:ic-management" size="24" />,
-				children: [
-					{
-						title: "sys.nav.user.index",
-						path: "/management/system/user",
-						auth: ["permission:admin"],
-					},
-					{
-						title: "sys.nav.user.profile",
-						path: "/management/system/profile",
-						auth: ["permission:admin"],
-					},
-					{
-						title: "Proposal",
-						path: "/management/system/proposal",
-						auth: ["permission:admin"],
-					},
-					{
-						title: "Interview",
-						path: "/management/system/interview",
-						auth: ["permission:admin"],
-					},
-				],
 			},
-		],
-	},
-	{
-		name: "sys.nav.dashboard",
-		items: [
 			{
-				title: "sys.nav.user.index",
-				path: "/user",
-				icon: <Icon icon="local:ic-analysis" size="24" />,
+				title: "User Management",
+				path: "/management/system/user",
+				icon: <Icon icon="mdi:account-group" size="24" />,
+				auth: ["permission:admin"],
+			},
+			{
+				title: "Proposal Management",
+				path: "/admin-proposals",
+				icon: <Icon icon="mdi:file-document-multiple" size="24" />,
+				auth: ["permission:admin"],
+			},
+			{
+				title: "Interview Management",
+				path: "/admin-interviews",
+				icon: <Icon icon="mdi:calendar-multiple" size="24" />,
+				auth: ["permission:admin"],
+			},
+			{
+				title: "Job Dashboard",
+				path: "/job-dashboard",
+				icon: <Icon icon="mdi:chart-line" size="24" />,
 				auth: ["permission:user"],
-				children: [
-					// {
-					// 	title: "sys.nav.user.profile",
-					// 	path: "/user/profile",
-					// 	auth: ["permission:user"],
-					// },
-					{
-						title: "Project",
-						path: "/user/project-list",
-						auth: ["permission:user"],
-					},
-					{
-						title: "Interview",
-						path: "/user/interview",
-						auth: ["permission:user"],
-					},
-				],
+			},
+			{
+				title: "Resume Workshop",
+				path: "/resume-workshop",
+				icon: <Icon icon="mdi:file-document-edit" size="24" />,
+				auth: ["permission:user"],
+			},
+			{
+				title: "Project",
+				path: "/user/project-list",
+				icon: <Icon icon="mdi:folder" size="24" />,
+				auth: ["permission:user"],
+			},
+			{
+				title: "Interview",
+				path: "/user/interview",
+				icon: <Icon icon="mdi:video" size="24" />,
+				auth: ["permission:user"],
 			},
 		],
 	},
@@ -73,10 +64,7 @@ export const frontendNavData: NavProps["data"] = [
 	// 			icon: <Icon icon="local:ic-workbench" size="24" />,
 	// 		},
 	// 		{
-	// 			title: "sys.nav.analysis",
-	// 			path: "/analysis",
-	// 			icon: <Icon icon="local:ic-analysis" size="24" />,
-	// 		},
+
 	// 	],
 	// },
 	// {

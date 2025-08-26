@@ -12,20 +12,20 @@ export default function NotificationsTab() {
 			<CardContent className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				<div className="flex-1">
 					<h4>Activity</h4>
-					<p className="text-text-secondary">Donec mi odio, faucibus at, scelerisque quis</p>
+					<p className="text-text-secondary">In-app notifications and activity alerts</p>
 				</div>
 				<div className="flex-2">
 					<div className="flex w-full flex-col gap-4 rounded-lg px-6 py-8 bg-bg-neutral">
 						<div className="flex w-full justify-between">
-							<div>Email me when someone answers on my form</div>
+							<div>Show notifications when someone answers on my form</div>
 							<Switch defaultChecked />
 						</div>
 						<div className="flex w-full justify-between">
-							<div>Email me when someone comments onmy article</div>
+							<div>Show notifications when someone comments on my article</div>
 							<Switch />
 						</div>
 						<div className="flex w-full justify-between">
-							<div>Email me hen someone follows me</div>
+							<div>Show notifications when someone follows me</div>
 							<Switch defaultChecked />
 						</div>
 					</div>

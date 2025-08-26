@@ -26,14 +26,7 @@ interface Props extends MotionProps {
  */
 export default function MotionViewport({ children, className, ...other }: Props) {
 	return (
-		<m.div
-			initial="initial"
-			whileInView="animate"
-			viewport={{ once: true, amount: 0.3 }}
-			variants={varContainer()}
-			className={className}
-			{...other}
-		>
+		<m.div initial="initial" whileInView="animate" viewport={{ once: true, amount: 0.3 }} variants={varContainer()} className={className} {...other}>
 			{children}
 		</m.div>
 	);

@@ -3,8 +3,14 @@ import { Navigate } from "react-router";
 import { Component } from "./utils";
 
 export const frontendDashboardRoutes: RouteObject[] = [
+	{ index: true, element: <Navigate to="job-dashboard" replace /> },
+	{ path: "job-dashboard", element: Component("/pages/dashboard/job-dashboard") },
+	{ path: "resume-workshop", element: Component("/pages/dashboard/resume-workshop") },
 	// { path: "workbench", element: Component("/pages/dashboard/workbench") },
-	// { path: "analysis", element: Component("/pages/dashboard/analysis") },
+
+	{ path: "admin-dashboard", element: Component("/pages/dashboard/admin") },
+	{ path: "admin-proposals", element: Component("/pages/dashboard/admin-proposals") },
+	{ path: "admin-interviews", element: Component("/pages/dashboard/admin-interviews") },
 	// {
 	// 	path: "components",
 	// 	children: [
@@ -44,7 +50,7 @@ export const frontendDashboardRoutes: RouteObject[] = [
 					{ index: true, element: <Navigate to="user" replace /> },
 					// { path: "permission", element: Component("/pages/management/system/permission") },
 					// { path: "role", element: Component("/pages/management/system/role") },
-					{ path: "profile", element: Component("/pages/management/system/profile") },
+
 					{ path: "user", element: Component("/pages/management/system/user") },
 					{ path: "user/:id", element: Component("/pages/management/system/user/detail") },
 					{ path: "proposal", element: Component("/pages/management/system/proposal/user") },
@@ -59,9 +65,11 @@ export const frontendDashboardRoutes: RouteObject[] = [
 		children: [
 			{ index: true, element: <Navigate to="profile" replace /> },
 			{ path: "profile", element: Component("/pages/management/user/profile") },
-			{ path: "project-list", element: Component("/pages/management/user/project/profile") },
+			{ path: "project-list", element: Component("/pages/user/project-list") },
 			{ path: "project-list/:profileId", element: Component("/pages/management/user/project/detail") },
-			{ path: "interview", element: Component("/pages/management/user/interview/profile") },
+			{ path: "interview-list", element: Component("/pages/user/interview-list") },
+			{ path: "interview-list/:interviewId", element: Component("/pages/user/interview-list/interview-details-page") },
+			{ path: "interview", element: Component("/pages/user/interview-list") },
 			{ path: "interview/:profileId", element: Component("/pages/management/user/interview/detail") },
 			// { path: "interview/:profileId/:proposalId", element: Component("/pages/management/user/interview/detail") },
 			// { path: "resume", element: Component("/pages/management/user/resume") },

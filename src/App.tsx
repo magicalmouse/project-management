@@ -21,10 +21,25 @@ if (import.meta.env.DEV) {
 	});
 }
 
+// Create a QueryClient with default options
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			staleTime: 5 * 60 * 1000, // 5 minutes
+			gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+			retry: 1,
+			refetchOnWindowFocus: false,
+		},
+		mutations: {
+			retry: 1,
+		},
+	},
+});
+
 function App({ children }: { children: React.ReactNode }) {
 	return (
 		<HelmetProvider>
-			<QueryClientProvider client={new QueryClient()}>
+			<QueryClientProvider client={queryClient}>
 				<ThemeProvider adapters={[AntdAdapter]}>
 					<VercelAnalytics debug={import.meta.env.PROD} />
 					<Helmet>

@@ -11,11 +11,7 @@ export default function ScrollProgressView() {
 	return (
 		<>
 			<Button variant="link" asChild>
-				<a
-					href="https://www.framer.com/motion/"
-					style={{ color: themeVars.colors.palette.primary.default }}
-					className="mb-4 block"
-				>
+				<a href="https://www.framer.com/motion/" style={{ color: themeVars.colors.palette.primary.default }} className="mb-4 block">
 					https://www.framer.com/motion/
 				</a>
 			</Button>

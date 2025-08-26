@@ -70,20 +70,10 @@ export default function TaskDetail({ task }: Props) {
 							<Icon icon="local:ic-rise" size={20} color={themeVars.colors.palette.warning.default} />
 						</ToggleGroupItem>
 						<ToggleGroupItem value={TaskPriority.MEDIUM}>
-							<Icon
-								icon="local:ic-rise"
-								size={20}
-								color={themeVars.colors.palette.success.default}
-								className="rotate-90"
-							/>
+							<Icon icon="local:ic-rise" size={20} color={themeVars.colors.palette.success.default} className="rotate-90" />
 						</ToggleGroupItem>
 						<ToggleGroupItem value={TaskPriority.LOW}>
-							<Icon
-								icon="local:ic-rise"
-								size={20}
-								color={themeVars.colors.palette.info.default}
-								className="rotate-180"
-							/>
+							<Icon icon="local:ic-rise" size={20} color={themeVars.colors.palette.info.default} className="rotate-180" />
 						</ToggleGroupItem>
 					</ToggleGroup>
 				</div>

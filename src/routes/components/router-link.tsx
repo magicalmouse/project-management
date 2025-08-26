@@ -6,6 +6,4 @@ interface RouterLinkProps extends Omit<LinkProps, "to"> {
 	ref?: React.Ref<HTMLAnchorElement>;
 }
 
-export const RouterLink: React.FC<RouterLinkProps> = ({ href, ...props }) => (
-	<Link ref={props.ref} to={href} {...props} />
-);
+export const RouterLink: React.FC<RouterLinkProps> = ({ href, ...props }) => <Link ref={props.ref} to={href} {...props} />;

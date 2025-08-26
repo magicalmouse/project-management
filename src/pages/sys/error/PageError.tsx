@@ -135,5 +135,13 @@ export default function PageError({ error, resetErrorBoundary }: FallbackProps) 
 			Go to Home
 		</Button>
 	);
-	return <ErrorLayout title="Sorry, Page error occurred!" helmetTitle="Sorry, Page error occurred!" desc={error ? error.toString() : ""} svg={svg} slots={{ footer }} />;
+	return (
+		<ErrorLayout
+			title="Sorry, Page error occurred!"
+			helmetTitle="Sorry, Page error occurred!"
+			desc={error ? error.toString() : ""}
+			svg={svg}
+			slots={{ footer }}
+		/>
+	);
 }

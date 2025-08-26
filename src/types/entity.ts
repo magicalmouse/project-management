@@ -1,13 +1,12 @@
 import type { NavItemDataProps } from "@/components/nav/types";
 import type { BasicStatus, InterviewProgress, PermissionType } from "./enum";
-import { UserAppMetadata, UserMetadata } from "@supabase/supabase-js";
+// Custom types for MySQL-based authentication
 
 export interface UserToken {
 	access_token?: string;
 	refresh_token?: string;
 }
 
-// export type UserInfo = UserInfoSupabase;
 export interface UserInfo {
 	id: string;
 	email?: string;
@@ -22,8 +21,8 @@ export interface UserInfo {
 	country?: string;
 	role?: number;
 
-	app_metadata: UserAppMetadata;
-	user_metadata: UserMetadata;
+	app_metadata: any;
+	user_metadata: any;
 	aud: string;
 	created_at: string;
 }
@@ -103,25 +102,30 @@ export type MenuTree = Menu & {
 
 export interface ProfileInfo {
 	id: string;
-	name: string;
-	dob: string;
-	gender: string;
-	phone: string;
-	email: string;
-	job_sites: string;
-	country: string;
+	name?: string;
+	dob?: string;
+	gender?: string;
+	phone?: string;
+	email?: string;
+	job_sites?: string;
+	country?: string;
 	user: string | Partial<UserInfo>;
+	created_at?: string;
 }
 
 export interface ProposalInfo {
 	id: string;
-	profile: string;
+	profile?: string;
 	user: string;
-	job_description: string;
-	resume: string;
-	job_link: string;
-	company: string;
+	job_description?: string;
+	resume?: string;
+	job_link?: string;
+	company?: string;
 	cover_letter?: string;
+	status?: string;
+	resume_pdf_path?: string; // Path to the uploaded PDF resume
+	saved_resume_id?: string; // ID of the linked saved resume
+	applied_date?: string;
 	created_at?: string;
 }
 
@@ -129,12 +133,16 @@ export interface InterviewInfo {
 	id: string;
 	proposal?: string | Partial<ProposalInfo>;
 	meeting_title?: string;
-	meeting_link: string;
-	meeting_date: string;
-	progress: InterviewProgress;
-	job_description: string;
+	meeting_link?: string;
+	meeting_date?: string;
+	progress?: InterviewProgress;
+	job_description?: string;
 	interviewer?: string;
-	user: string | Partial<UserInfo>;
-	profile: string | Partial<ProfileInfo>;
+	user?: string | Partial<UserInfo>;
+	profile?: string | Partial<ProfileInfo>;
+	notes?: string;
+	feedback?: string;
+	selected_resume_id?: string; // ID of the selected resume for this interview
+	resume_link?: string; // Direct link to view the selected resume
 	created_at?: string;
 }

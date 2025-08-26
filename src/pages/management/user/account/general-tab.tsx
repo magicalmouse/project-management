@@ -1,6 +1,7 @@
+import { useAuth } from "@/components/auth/use-auth";
 import { UploadAvatar } from "@/components/upload";
 import { useUpdateUserProfile, useUserInfo } from "@/store/userStore";
-import { UserInfo } from "@/types/entity";
+import type { UserInfo } from "@/types/entity";
 import { BasicStatus } from "@/types/enum";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardFooter } from "@/ui/card";
@@ -23,16 +24,16 @@ type FieldType = {
 
 export default function GeneralTab() {
 	const { updateProfile, isLoading } = useUpdateUserProfile();
-
-	const { avatar, username, email, country, summary } = useUserInfo();
-	console.log(avatar, username, email, country, summary)
+	const { access_token } = useAuth();
+	const { id, avatar, username, email, country, summary } = useUserInfo();
+	console.log(avatar, username, email, country, summary);
 	const form = useForm<FieldType>({
 		defaultValues: {
 			username: username ?? "",
 			email,
 			country: country ?? "",
 			status: BasicStatus.ENABLE,
-			summary: summary ?? ""
+			summary: summary ?? "",
 		},
 	});
 
@@ -41,9 +42,9 @@ export default function GeneralTab() {
 			username: values.username,
 			country: values.country,
 			status: values.status,
-			summary: values.summary
-		}
-		await updateProfile(profile);
+			summary: values.summary,
+		};
+		await updateProfile(profile, id || "", access_token || "");
 	};
 
 	return (
@@ -69,7 +70,7 @@ export default function GeneralTab() {
 									<FormField
 										control={form.control}
 										name="username"
-										rules={{required: "Please input username."}}
+										rules={{ required: "Please input username." }}
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Username</FormLabel>
@@ -95,7 +96,7 @@ export default function GeneralTab() {
 									<FormField
 										control={form.control}
 										name="country"
-										rules={{required: "Please input username."}}
+										rules={{ required: "Please input username." }}
 										render={({ field }) => (
 											<FormItem>
 												<FormLabel>Country</FormLabel>
@@ -105,7 +106,7 @@ export default function GeneralTab() {
 											</FormItem>
 										)}
 									/>
-									<FormField 
+									<FormField
 										control={form.control}
 										name="status"
 										render={({ field }) => (
@@ -113,9 +114,9 @@ export default function GeneralTab() {
 												<FormLabel>Status</FormLabel>
 												<FormControl>
 													<Switch
-													 {...field} 
-													 checked={field.value === BasicStatus.ENABLE}
-													 onCheckedChange={(checked) => field.onChange(checked ? BasicStatus.ENABLE : BasicStatus.DISABLE)}
+														{...field}
+														checked={field.value === BasicStatus.ENABLE}
+														onCheckedChange={(checked) => field.onChange(checked ? BasicStatus.ENABLE : BasicStatus.DISABLE)}
 													/>
 												</FormControl>
 											</FormItem>

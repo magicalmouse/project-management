@@ -1,8 +1,10 @@
+import dashboardService, { type DashboardStats } from "@/api/services/dashboardService";
 import avatar1 from "@/assets/images/avatars/avatar-1.png";
 import avatar2 from "@/assets/images/avatars/avatar-2.png";
 import avatar3 from "@/assets/images/avatars/avatar-3.png";
 import avatar4 from "@/assets/images/avatars/avatar-4.png";
 import avatar5 from "@/assets/images/avatars/avatar-5.png";
+import { useAuth } from "@/components/auth/use-auth";
 import { Chart, useChart } from "@/components/chart";
 import Icon from "@/components/icon/icon";
 import { GLOBAL_CONFIG } from "@/global-config";
@@ -12,7 +14,7 @@ import { Card, CardContent } from "@/ui/card";
 import { Progress } from "@/ui/progress";
 import { Text, Title } from "@/ui/typography";
 import { rgbAlpha } from "@/utils/theme";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BannerCard from "./banner-card";
 
 const quickStats = [
@@ -95,6 +97,24 @@ const totalIncome = {
 
 export default function Workbench() {
 	const [activeTab, setActiveTab] = useState("All Transaction");
+	const { user } = useAuth();
+	const [todayStats, setTodayStats] = useState<DashboardStats | null>(null);
+
+	// Fetch today's application and interview statistics
+	useEffect(() => {
+		const fetchTodayStats = async () => {
+			if (user?.id) {
+				try {
+					const stats = await dashboardService.getDashboardStats();
+					setTodayStats(stats);
+				} catch (error) {
+					console.error("Failed to fetch today's stats:", error);
+				}
+			}
+		};
+		fetchTodayStats();
+	}, [user]);
+
 	const chartOptions = useChart({
 		xaxis: { categories: monthlyRevenue.categories },
 		chart: { toolbar: { show: false } },
@@ -110,12 +130,33 @@ export default function Workbench() {
 		dataLabels: { enabled: false },
 		plotOptions: { pie: { donut: { size: "70%" } } },
 	});
+
+	// Enhanced quickStats with today's job data
+	const enhancedQuickStats = [
+		...quickStats,
+		{
+			icon: "mdi:briefcase-plus",
+			label: "Applications Today",
+			value: `${todayStats?.applicationsToday || 0}`,
+			percent: 0,
+			color: "#3b82f6",
+			chart: [2, 4, 3, 5, 4, 3, 4, 5, 4, 3, 2, 3],
+		},
+		{
+			icon: "mdi:calendar-clock",
+			label: "Interviews Today",
+			value: `${todayStats?.interviewsToday || 0}`,
+			percent: 0,
+			color: "#10b981",
+			chart: [1, 2, 1, 3, 2, 1, 2, 3, 2, 1, 1, 2],
+		},
+	];
 	return (
 		<div className="flex flex-col gap-4 container mx-auto">
 			<BannerCard />
-			{/* 顶部四个统计卡片 */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 @container">
-				{quickStats.map((stat) => (
+			{/* 顶部统计卡片 (包含今日数据) */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 @container">
+				{enhancedQuickStats.map((stat) => (
 					<Card key={stat.label} className="flex flex-col justify-between h-full">
 						<CardContent className="flex flex-col gap-2 p-4">
 							<div className="flex items-center gap-2">

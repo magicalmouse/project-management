@@ -9,18 +9,7 @@ export default function ChartBar() {
 			bar: { horizontal: true, barHeight: "30%" },
 		},
 		xaxis: {
-			categories: [
-				"Italy",
-				"Japan",
-				"China",
-				"Canada",
-				"France",
-				"Germany",
-				"South Korea",
-				"Netherlands",
-				"United States",
-				"United Kingdom",
-			],
+			categories: ["Italy", "Japan", "China", "Canada", "France", "Germany", "South Korea", "Netherlands", "United States", "United Kingdom"],
 		},
 	});
 

@@ -6,6 +6,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router";
 import App from "./App";
 import { worker } from "./_mock";
+
 import menuService from "./api/services/menuService";
 import { registerLocalIcons } from "./components/icon";
 import { GLOBAL_CONFIG } from "./global-config";
@@ -15,9 +16,19 @@ import { urlJoin } from "./utils";
 
 await registerLocalIcons();
 // await worker.start({ onUnhandledRequest: "bypass", serviceWorker: { url: urlJoin(GLOBAL_CONFIG.publicPath, "mockServiceWorker.js") } });
-if (GLOBAL_CONFIG.routerMode === "backend") {
-	await menuService.getMenuList();
-}
+
+// Note: Database setup is handled server-side only
+// Admin user creation is done via separate script: node createAdmin.js
+
+// Temporarily disable menu loading to prevent infinite loading
+// if (GLOBAL_CONFIG.routerMode === "backend") {
+// 	try {
+// 		await menuService.getMenuList();
+// 	} catch (error) {
+// 		console.warn("Failed to load menu list:", error);
+// 		// Continue with app initialization even if menu loading fails
+// 	}
+// }
 
 const router = createBrowserRouter(
 	[

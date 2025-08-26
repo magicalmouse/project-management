@@ -1,22 +1,23 @@
 import { Icon } from "@/components/icon";
+import { useParams, useRouter } from "@/routes/hooks";
+import { useGetInterviewList } from "@/store/interviewStore";
+import { useDeleteProposal, useGetProposalList } from "@/store/proposalStore";
+import { useGetSavedResumeList } from "@/store/savedResumeStore";
+import { useUserInfo } from "@/store/userStore";
+import { InterviewProgress } from "@/types/enum";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
-import Table, { type ColumnsType } from "antd/es/table";
-import { Key, useEffect, useRef, useState } from "react";
-import type { InterviewInfo, ProposalInfo } from "#/entity";
-import ProjectModal, { type ProjectModalProps } from "./project-modal";
-import { useParams, useRouter } from "@/routes/hooks";
-import { useUserInfo } from "@/store/userStore";
-import { useDeleteProposal, useGetProposalList } from "@/store/proposalStore";
-import { TableProps } from "antd/lib";
 import { DatePicker, Input, Popconfirm, Space } from "antd";
+import Table, { type ColumnsType } from "antd/es/table";
+import type { FilterDropdownProps } from "antd/es/table/interface";
+import type { TableProps } from "antd/lib";
+import dayjs, { type Dayjs } from "dayjs";
+import { type Key, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
-import InterviewModal, { InterviewModalProps } from "../../interview/detail/interview-modal";
-import { InterviewProgress } from "@/types/enum";
-import { useGetInterviewList } from "@/store/interviewStore";
-import { FilterDropdownProps } from "antd/es/table/interface";
-import dayjs, { Dayjs } from "dayjs";
+import type { InterviewInfo, ProposalInfo } from "#/entity";
+import InterviewModal, { type InterviewModalProps } from "../../interview/detail/interview-modal";
+import ProjectModal, { type ProjectModalProps } from "./project-modal";
 
 const defaultProposalValue: ProposalInfo = {
 	id: "",
@@ -100,7 +101,7 @@ export default function ProjectPage() {
 		setSearchText(selectedKeys[0]);
 	};
 	const handleReset = (clearFilters?: () => void) => {
-		clearFilters!();
+		clearFilters?.();
 		setSearchText("");
 	};
 	const getColumnSearchProps = (dataIndex: keyof ProposalInfo): any => ({
@@ -160,16 +161,31 @@ export default function ProjectPage() {
 		{
 			title: "Job Description",
 			dataIndex: "job_description",
-			width: 250,
+			width: 200,
 			// sorter: (a, b) => a.id.localeCompare(b.id),
-			render: (_, record) => <div className="overflow-auto max-h-20">{record.job_description}</div>,
+			render: (_, record) => (
+				<div className="max-w-[200px]">
+					<div className="text-sm line-clamp-2 text-gray-700">
+						{record.job_description ? record.job_description.substring(0, 120) + (record.job_description.length > 120 ? "..." : "") : "No description"}
+					</div>
+				</div>
+			),
 		},
 		{
 			title: "Resume",
 			dataIndex: "resume",
 			...getColumnSearchProps("resume"),
-			width: 50,
-			render: (_, record) => <div>{record.resume}</div>,
+			width: 80,
+			render: (_, record) => (
+				<div className="flex items-center gap-2">
+					<span className="truncate max-w-20">{record.resume}</span>
+					{(record as any).hasSavedResume && (
+						<Badge variant="secondary" className="text-xs">
+							Saved
+						</Badge>
+					)}
+				</div>
+			),
 		},
 		{
 			title: "Cover Letter",
@@ -201,7 +217,7 @@ export default function ProjectPage() {
 						<DatePicker.RangePicker
 							value={rangeValue}
 							onChange={(dates) => {
-								if (dates && dates[0] && dates[1]) {
+								if (dates?.[0] && dates[1]) {
 									const isoRange = [dates[0].toISOString(), dates[1].toISOString()];
 									setSelectedKeys([isoRange as unknown as Key]);
 								} else {
@@ -230,14 +246,14 @@ export default function ProjectPage() {
 			onFilter: (value: Key, record: ProposalInfo) => {
 				const [start, end] = value as unknown as string[];
 
-				const dateValue = record["created_at"];
+				const dateValue = record.created_at;
 				if (!dateValue) return false;
 
 				const recordDate = dayjs(dateValue);
 				return recordDate.isAfter(dayjs(start)) && recordDate.isBefore(dayjs(end));
 			},
 			width: 50,
-			render: (_, record) => <div>{new Date(record.created_at!).toLocaleString()}</div>,
+			render: (_, record) => <div>{new Date(record.created_at || "").toLocaleString()}</div>,
 		},
 		{
 			title: "Action",
@@ -266,7 +282,7 @@ export default function ProjectPage() {
 			show: true,
 			...defaultProposalValue,
 			title: "New Proposal",
-			formValue: { ...defaultProposalValue, profile: profileId!, user: userInfo.id! },
+			formValue: { ...defaultProposalValue, profile: profileId || "", user: userInfo.id || "" },
 		}));
 	};
 
@@ -297,11 +313,13 @@ export default function ProjectPage() {
 	};
 
 	const fetchData = async () => {
-		const data = await getProposalList(userInfo.id!, profileId!);
-		setDataSource(data);
+		const result = await getProposalList();
+		if (result.data) {
+			setDataSource(result.data.proposals || []);
+		}
 
-		const interviewList = await getInterviewList(profileId!, userInfo.id!);
-		setInterviewData(interviewList);
+		const interviewList = await getInterviewList(profileId || "", userInfo.id || "");
+		setInterviewData(interviewList.interviews || []);
 	};
 
 	// interview modal
@@ -312,8 +330,8 @@ export default function ProjectPage() {
 			title: "New Interview",
 			formValue: {
 				...defaultInterviewValue,
-				profile: profileId!,
-				user: userInfo.id!,
+				profile: profileId || "",
+				user: userInfo.id || "",
 				job_description: formValue.job_description,
 				proposal: formValue.id,
 			},

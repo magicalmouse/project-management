@@ -1,8 +1,13 @@
-import { supabase, supabaseAdmin } from "../supabaseClient";
-
-import type { UserInfo, UserToken } from "#/entity";
-import type { AuthError, AuthResponse, Session } from "@supabase/supabase-js";
 import { GLOBAL_CONFIG } from "@/global-config";
+import type { UserInfo, UserToken } from "#/entity";
+import apiClient from "../apiClient";
+
+interface ApiResponse<T = any> {
+	success: boolean;
+	error?: string;
+	message?: string;
+	[key: string]: any;
+}
 
 export interface AuthReq {
 	email: string;
@@ -17,151 +22,401 @@ export interface SignInReq {
 export interface SignUpReq extends SignInReq {
 	email: string;
 }
+
 export type SignInRes = UserToken & { user: UserInfo };
 
 export enum UserApi {
-	SignIn = "/auth/signin",
-	SignUp = "/auth/signup",
+	SignIn = "/auth/login",
+	SignUp = "/auth/register",
 	Logout = "/auth/logout",
 	Refresh = "/auth/refresh",
-	User = "/user",
+	Me = "/auth/me",
+	Users = "/users",
 }
 
-// const signin = (data: SignInReq) => apiClient.post<SignInRes>({ url: UserApi.SignIn, data });
-// const signup = (data: SignUpReq) => apiClient.post<SignInRes>({ url: UserApi.SignUp, data });
-// const logout = () => apiClient.get({ url: UserApi.Logout });
-// const findById = (id: string) => apiClient.get<UserInfo[]>({ url: `${UserApi.User}/${id}` });
+const signup = async (credentials: AuthReq): Promise<{ data: any; error: any }> => {
+	console.log("Registering user:", credentials.email);
 
-const signup = async (credentials: AuthReq): Promise<{data: AuthResponse['data']; error: AuthError | null}> => {
-	console.log("credentials", credentials)
-	const { data, error } = await supabase.auth.signUp({
-		email: credentials.email,
-		password: credentials.password
-	});
-	if (error) {
-    console.error('Signup error:', error.message);
-		throw error;
-  } else {
-    console.log('Signup success:', data);
-  }
-	return { data, error }
-}
+	try {
+		const response = await apiClient.post<ApiResponse>({
+			url: UserApi.SignUp,
+			data: {
+				email: credentials.email,
+				username: credentials.email.split("@")[0],
+				password: credentials.password,
+			},
+		});
 
-const signin = async (credentials: AuthReq): Promise<{user: UserInfo, session: Session}> => {
-  const { data, error } = await supabase.auth.signInWithPassword(credentials);
+		if (response.success) {
+			const user: UserInfo = {
+				id: response.user.id,
+				email: response.user.email,
+				username: response.user.username,
+				avatar: "",
+				country: "",
+				summary: "",
+				role: response.user.role,
+				status: 1,
+				created_at: new Date().toISOString(),
+				app_metadata: {},
+				user_metadata: {},
+				aud: "authenticated",
+				permissions: [
+					{
+						id: "user",
+						name: "user_permission",
+						code: "permission:user",
+					},
+				],
+				roles: [
+					{
+						id: "user",
+						name: "user_role",
+						code: "role:user",
+					},
+				],
+			};
 
-  if (error) {
-    console.error('Signin error:', error.message);
-		throw error;
-  } else {
-    console.log('Signin success:', data);
-  }
-	if (!data || !data.user || !data.session) {
-    throw new Error("Invalid sign-in response");
-  }
+			console.log("Signup success:", user);
+			return {
+				data: {
+					user,
+					session: {
+						access_token: response.token,
+						refresh_token: response.refreshToken,
+					},
+				},
+				error: null,
+			};
+		}
 
-	const { data: userProfile, error: profileError } = await supabase
-		.from("users")
-		.select("*")
-		.eq("id", data.user.id)
-		.single();
-
-	if (profileError || !userProfile) {
-    throw new Error("Failed to load user profile");
-  }
-
-	return { user: userProfile as UserInfo, session: data.session };
+		throw new Error("Registration failed");
+	} catch (error: any) {
+		console.error("Signup error:", error.message);
+		return {
+			data: null,
+			error: error.response?.data?.error || error.message || "Registration failed",
+		};
+	}
 };
 
-const getCurrentUser = async () => {
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
+const signin = async (credentials: AuthReq): Promise<{ user: UserInfo; session: any }> => {
+	try {
+		console.log("Signing in user:", credentials.email);
 
-  if (error) {
-    console.error('Get user error:', error.message);
-  } else {
-    console.log('Current user:', user);
-  }
+		const response = await apiClient.post<ApiResponse>({
+			url: UserApi.SignIn,
+			data: {
+				email: credentials.email,
+				password: credentials.password,
+			},
+		});
+
+		if (response.success) {
+			const user: UserInfo = {
+				id: response.user.id,
+				email: response.user.email,
+				username: response.user.username,
+				avatar: "",
+				country: "",
+				summary: "",
+				role: response.user.role,
+				status: 1,
+				created_at: new Date().toISOString(),
+				app_metadata: {},
+				user_metadata: {},
+				aud: "authenticated",
+				permissions:
+					response.user.role === 0
+						? [
+								{
+									id: "admin",
+									name: "admin_permission",
+									code: "permission:admin",
+								},
+							]
+						: [
+								{
+									id: "user",
+									name: "user_permission",
+									code: "permission:user",
+								},
+							],
+				roles:
+					response.user.role === 0
+						? [
+								{
+									id: "admin",
+									name: "admin_role",
+									code: "role:admin",
+								},
+							]
+						: [
+								{
+									id: "user",
+									name: "user_role",
+									code: "role:user",
+								},
+							],
+			};
+
+			const session = {
+				access_token: response.token,
+				refresh_token: response.refreshToken,
+				expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour
+				user,
+			};
+
+			console.log("Signin success:", user);
+			return { user, session };
+		}
+
+		throw new Error("Login failed");
+	} catch (error: any) {
+		console.error("Signin error:", error.message);
+		throw new Error(error.response?.data?.error || error.message || "Invalid email or password");
+	}
 };
 
-const getUserList = async () : Promise<Partial<UserInfo>[]> => {
-	const { data, error } = await supabase
-		.from("users")
-		.select("*")
-		.eq("role", 1)
+const getCurrentUser = async (token?: string) => {
+	try {
+		if (!token) {
+			throw new Error("No authentication token provided");
+		}
 
-	if (error) {
-    console.error('Error fetching users:', error.message);
-		throw error
-  } else {
-    return data as Partial<UserInfo>[];
-  }
-}
+		const response = await apiClient.get<ApiResponse>({
+			url: UserApi.Me,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
 
-const logout = async () => {
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    console.error('Signout error:', error.message);
-  } else {
-    console.log('User signed out');
-  }
+		if (response.success) {
+			const user: UserInfo = {
+				id: response.user.id,
+				email: response.user.email,
+				username: response.user.username,
+				avatar: "",
+				country: "",
+				summary: "",
+				role: response.user.role,
+				status: 1,
+				created_at: new Date().toISOString(),
+				app_metadata: {},
+				user_metadata: {},
+				aud: "authenticated",
+				permissions:
+					response.user.role === 0
+						? [
+								{
+									id: "admin",
+									name: "admin_permission",
+									code: "permission:admin",
+								},
+							]
+						: [
+								{
+									id: "user",
+									name: "user_permission",
+									code: "permission:user",
+								},
+							],
+				roles:
+					response.user.role === 0
+						? [
+								{
+									id: "admin",
+									name: "admin_role",
+									code: "role:admin",
+								},
+							]
+						: [
+								{
+									id: "user",
+									name: "user_role",
+									code: "role:user",
+								},
+							],
+			};
+
+			console.log("Current user:", user);
+			return user;
+		}
+
+		throw new Error("Failed to get current user");
+	} catch (error: any) {
+		console.error("Get user error:", error.message);
+		throw new Error(error.response?.data?.error || error.message || "Failed to get current user");
+	}
+};
+
+const getUserList = async (token: string): Promise<Partial<UserInfo>[]> => {
+	try {
+		const response = await apiClient.get<ApiResponse>({
+			url: UserApi.Users,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		if (response.success) {
+			return response.users.map((user: any) => ({
+				id: user.id,
+				email: user.email,
+				username: user.username,
+				role: user.role,
+				status: user.status,
+				created_at: user.createdAt,
+				avatar: "",
+				country: user.profile?.country || "",
+				summary: user.profile?.summary || "",
+				app_metadata: {},
+				user_metadata: {},
+				aud: "authenticated",
+				permissions: [],
+				roles: [],
+			}));
+		}
+
+		throw new Error("Failed to fetch users");
+	} catch (error: any) {
+		console.error("Error fetching users:", error.message);
+		throw new Error(error.response?.data?.error || error.message || "Failed to fetch users");
+	}
+};
+
+const logout = async (refreshToken?: string) => {
+	try {
+		if (refreshToken) {
+			await apiClient.post<ApiResponse>({
+				url: UserApi.Logout,
+				data: { refreshToken },
+			});
+		}
+		console.log("User signed out");
+	} catch (error: any) {
+		console.error("Signout error:", error.message);
+		// Don't throw error on logout failure, just log it
+	}
 };
 
 const forgotPassword = async (email: string) => {
-	const { error } = await supabase.auth.resetPasswordForEmail(email, {
-		redirectTo: GLOBAL_CONFIG.resetPasswordUrl
-	});
+	try {
+		// Password reset functionality is disabled for now
+		console.log("Password reset requested for:", email);
+		return "Password reset functionality is disabled. Please contact an administrator for assistance.";
+	} catch (error: any) {
+		console.error("Error processing reset request:", error.message);
+		throw error;
+	}
+};
 
-	if (error) {
-    console.error('Error sending reset link:', error.message);
-		throw error
-  } else {
-    return 'Check your email for a secure login link.';
-  }
-}
+const updatePassword = async (newPassword: string, userId: string, token: string, currentPassword?: string) => {
+	try {
+		const response = await apiClient.put<ApiResponse>({
+			url: `${UserApi.Users}/${userId}/password`,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+			data: {
+				newPassword,
+				currentPassword,
+			},
+		});
 
-const updatePassword = async (newPassword: string) => {
-	const { error } = await supabase.auth.updateUser({
-		password: newPassword,
-	});
+		if (response.success) {
+			return "Password updated successfully. You can now log in.";
+		}
 
-	if (error) {
-    console.error('Error reset password:', error.message);
-		throw error
-  } else {
-    return 'Password updated successfully. You can now log in.';
-  }
-}
+		throw new Error("Failed to update password");
+	} catch (error: any) {
+		console.error("Error updating password:", error.message);
+		throw new Error(error.response?.data?.error || error.message || "Failed to update password");
+	}
+};
 
-const updateProfile = async (profile: Partial<UserInfo>, userId: string) => {
-	const { data, error } = await supabase
-		.from("users")
-		.update(profile)
-		.eq("id", userId)
-		.select("*")
-		.single();
+const updateProfile = async (profile: Partial<UserInfo>, userId: string, token: string) => {
+	try {
+		const updates: any = {};
+		if (profile.username) updates.username = profile.username;
+		if (profile.status !== undefined) updates.status = profile.status;
+		if (profile.role !== undefined) updates.role = profile.role;
 
-	if (error) {
-    console.error('Error update user profile:', error.message);
-		throw error
-  } else {
-    return data;
-  }
-}
+		const response = await apiClient.put<ApiResponse>({
+			url: `${UserApi.Users}/${userId}`,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+			data: updates,
+		});
 
-const deleteUser = async (userId: string) => {
-	const { data, error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+		if (response.success) {
+			return {
+				id: response.user.id,
+				email: response.user.email,
+				username: response.user.username,
+				role: response.user.role,
+				status: response.user.status,
+				avatar: "",
+				country: "",
+				summary: "",
+				created_at: new Date().toISOString(),
+				app_metadata: {},
+				user_metadata: {},
+				aud: "authenticated",
+				permissions: [],
+				roles: [],
+			};
+		}
 
-	if (error) {
-    console.error('Error delete user:', error.message);
-		throw error
-  } else {
-  	console.log("User deleted successfully");
-		return data;
-  }
-}
+		throw new Error("Failed to update user profile");
+	} catch (error: any) {
+		console.error("Error updating user profile:", error.message);
+		throw new Error(error.response?.data?.error || error.message || "Failed to update user profile");
+	}
+};
+
+const deleteUser = async (userId: string, token: string) => {
+	try {
+		const response = await apiClient.delete<ApiResponse>({
+			url: `${UserApi.Users}/${userId}`,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		if (response.success) {
+			console.log("User deleted successfully");
+			return { success: true };
+		}
+
+		throw new Error("Failed to delete user");
+	} catch (error: any) {
+		console.error("Error deleting user:", error.message);
+		throw new Error(error.response?.data?.error || error.message || "Failed to delete user");
+	}
+};
+
+const refreshTokens = async (refreshToken: string) => {
+	try {
+		const response = await apiClient.post<ApiResponse>({
+			url: UserApi.Refresh,
+			data: { refreshToken },
+		});
+
+		if (response.success) {
+			return {
+				access_token: response.token,
+				refresh_token: response.refreshToken,
+			};
+		}
+
+		throw new Error("Failed to refresh tokens");
+	} catch (error: any) {
+		console.error("Error refreshing tokens:", error.message);
+		throw new Error(error.response?.data?.error || error.message || "Failed to refresh tokens");
+	}
+};
 
 export default {
 	signin,
@@ -172,5 +427,6 @@ export default {
 	updatePassword,
 	updateProfile,
 	getUserList,
-	deleteUser
+	deleteUser,
+	refreshTokens,
 };

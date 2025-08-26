@@ -14,12 +14,12 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 	const { t } = useTranslation();
 
 	const { loginState, setLoginState } = useLoginStateContext();
-	const {signIn, isLoading} = useSignIn();
+	const { signIn, isLoading } = useSignIn();
 
 	const form = useForm<AuthReq>({
 		defaultValues: {
-			email: DB_USER[0].email,
-			password: DB_USER[0].password,
+			email: "test@example.com",
+			password: "password123",
 		},
 	});
 
@@ -28,8 +28,8 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 	const handleFinish = async (values: AuthReq) => {
 		try {
 			await signIn(values);
-		} catch(e) {
-			console.log("login error =>", e)
+		} catch (e) {
+			console.log("login error =>", e);
 		}
 	};
 
@@ -50,7 +50,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 							<FormItem>
 								<FormLabel>{t("sys.login.email")}</FormLabel>
 								<FormControl>
-									<Input placeholder={DB_USER.map((user) => user.username).join("/")} {...field} />
+									<Input placeholder="test@example.com" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -65,19 +65,15 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 							<FormItem>
 								<FormLabel>{t("sys.login.password")}</FormLabel>
 								<FormControl>
-									<Input type="password" placeholder={DB_USER[0].password} {...field} suppressHydrationWarning />
+									<Input type="password" placeholder="password123" {...field} suppressHydrationWarning />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
 
-					{/* 记住我/忘记密码 */}
-					<div className="flex flex-row justify-between">
-						<Button variant="link" onClick={() => setLoginState(LoginStateEnum.RESET_PASSWORD)} size="sm">
-							{t("sys.login.forgetPassword")}
-						</Button>
-					</div>
+					{/* Password reset functionality disabled */}
+					{/* Email functionality has been removed - contact administrator for password reset */}
 
 					{/* 登录按钮 */}
 					<Button type="submit" className="w-full">

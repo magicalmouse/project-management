@@ -178,13 +178,7 @@ export default function Calendar() {
 			<Card className="h-full w-full">
 				<CardContent className="h-full w-full">
 					<StyledCalendar $themeMode={themeMode}>
-						<CalendarHeader
-							now={date}
-							view={view}
-							onMove={handleMove}
-							onCreate={() => setOpen(true)}
-							onViewTypeChange={handleViewTypeChange}
-						/>
+						<CalendarHeader now={date} view={view} onMove={handleMove} onCreate={() => setOpen(true)} onViewTypeChange={handleViewTypeChange} />
 						<FullCalendar
 							ref={fullCalendarRef}
 							plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}

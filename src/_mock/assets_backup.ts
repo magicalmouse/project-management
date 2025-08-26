@@ -13,6 +13,36 @@ export const DB_MENU: Menu[] = [
 
 	// group_dashboard
 	{
+		id: "job-dashboard",
+		parentId: "group_dashboard",
+		name: "Job Dashboard",
+		code: "job-dashboard",
+		icon: "mdi:chart-line",
+		type: MENU,
+		path: "/job-dashboard",
+		component: "/pages/dashboard/job-dashboard",
+	},
+	{
+		id: "project",
+		parentId: "group_dashboard",
+		name: "Project",
+		code: "project",
+		icon: "mdi:folder",
+		type: MENU,
+		path: "/user/project-list",
+		component: "/pages/user/project-list",
+	},
+	{
+		id: "interview",
+		parentId: "group_dashboard",
+		name: "Interview",
+		code: "interview",
+		icon: "mdi:video",
+		type: MENU,
+		path: "/user/interview",
+		component: "/pages/user/interview",
+	},
+	{
 		id: "workbench",
 		parentId: "group_dashboard",
 		name: "sys.nav.workbench",

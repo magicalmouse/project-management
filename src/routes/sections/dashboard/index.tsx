@@ -16,6 +16,7 @@ const getRoutes = (): RouteObject[] => {
 
 export const dashboardRoutes: RouteObject[] = [
 	{
+		path: "/",
 		element: (
 			<LoginAuthGuard>
 				<Suspense fallback={<LineLoading />}>

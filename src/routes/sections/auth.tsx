@@ -14,9 +14,9 @@ const authCustom: RouteObject[] = [
 const resetPassword: RouteObject[] = [
 	{
 		path: "reset-password",
-		element: <ResetPasswordPage />
-	}
-]
+		element: <ResetPasswordPage />,
+	},
+];
 
 export const authRoutes: RouteObject[] = [
 	{

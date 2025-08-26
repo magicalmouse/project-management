@@ -1,17 +1,17 @@
 import { Icon } from "@/components/icon";
+import { useParams, useRouter } from "@/routes/hooks";
+import { useDeleteInterview, useGetInterviewList } from "@/store/interviewStore";
+import { useUserInfo } from "@/store/userStore";
+import { InterviewProgress } from "@/types/enum";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
+import { DatePicker, Space } from "antd";
 import Table, { type ColumnsType } from "antd/es/table";
-import { Key, useEffect, useState } from "react";
+import dayjs, { type Dayjs } from "dayjs";
+import { type Key, useEffect, useState } from "react";
 import type { InterviewInfo } from "#/entity";
 import InterviewModal, { Interview_Progress_Default, type InterviewModalProps } from "./interview-modal";
-import { useParams, useRouter } from "@/routes/hooks";
-import { InterviewProgress } from "@/types/enum";
-import { useDeleteInterview, useGetInterviewList } from "@/store/interviewStore";
-import { useUserInfo } from "@/store/userStore";
-import dayjs, { Dayjs } from "dayjs";
-import { DatePicker, Space } from "antd";
 
 const defaultInterviewValue: InterviewInfo = {
 	id: "",
@@ -58,7 +58,7 @@ export default function InterviewPage() {
 			title: "#",
 			dataIndex: "id",
 			width: 50,
-			sorter: (a, b) => new Date(a.created_at!).getTime() - new Date(b.created_at!).getTime(),
+			sorter: (a, b) => new Date(a.created_at || "").getTime() - new Date(b.created_at || "").getTime(),
 			defaultSortOrder: "descend",
 			render: (_, __, index) => index + 1,
 		},
@@ -99,7 +99,7 @@ export default function InterviewPage() {
 						<DatePicker.RangePicker
 							value={rangeValue}
 							onChange={(dates) => {
-								if (dates && dates[0] && dates[1]) {
+								if (dates?.[0] && dates[1]) {
 									const isoRange = [dates[0].toISOString(), dates[1].toISOString()];
 									setSelectedKeys([isoRange as unknown as Key]);
 								} else {
@@ -128,7 +128,7 @@ export default function InterviewPage() {
 			onFilter: (value: Key | boolean, record: InterviewInfo) => {
 				const [start, end] = value as unknown as string[];
 
-				const dateValue = record["meeting_date"];
+				const dateValue = record.meeting_date;
 				if (!dateValue) return false;
 
 				const recordDate = dayjs(dateValue);
@@ -136,7 +136,7 @@ export default function InterviewPage() {
 			},
 			// render: (_, record) => <div>{new Date(record.created_at!).toLocaleString()}</div>,
 			render: (_, record) => {
-				const utcDate = new Date(record.meeting_date);
+				const utcDate = new Date(record.meeting_date || "");
 				const estDate = new Date(utcDate.getTime() - 4 * 60 * 60 * 1000);
 				const formatted = estDate.toISOString().slice(0, 16).replace("T", " ");
 
@@ -146,8 +146,14 @@ export default function InterviewPage() {
 		{
 			title: "Job Description",
 			dataIndex: "job_description",
-			width: 250,
-			render: (_, record) => <div className="overflow-auto max-h-20">{record.job_description}</div>,
+			width: 200,
+			render: (_, record) => (
+				<div className="max-w-[200px]">
+					<div className="text-sm line-clamp-2 text-gray-700">
+						{record.job_description ? record.job_description.substring(0, 120) + (record.job_description.length > 120 ? "..." : "") : "No description"}
+					</div>
+				</div>
+			),
 		},
 		{
 			title: "Profile",
@@ -221,7 +227,7 @@ export default function InterviewPage() {
 
 	const fetchData = async () => {
 		const data = await getInterviewList(profileId, userInfo.id);
-		setDataSource(data);
+		setDataSource(data.interviews || []);
 	};
 
 	const isInterviewSuccess = (progress: InterviewProgress) => progress === InterviewProgress.SUCCESS;
@@ -247,10 +253,10 @@ export default function InterviewPage() {
 					columns={columns}
 					dataSource={dataSource}
 					rowClassName={(record) => {
-						if (isInterviewSuccess(record.progress)) {
+						if (record.progress && isInterviewSuccess(record.progress)) {
 							return "bg-green-50 dark:bg-green-900/30";
 						}
-						if (isInterviewFail(record.progress)) {
+						if (record.progress && isInterviewFail(record.progress)) {
 							return "bg-red-50 dark:bg-red-900/30";
 						}
 						return "";

@@ -320,11 +320,7 @@ export default function ProfileTab() {
 												border: item.connected ? "" : `1px solid ${themeVars.colors.palette.primary.default}`,
 											}}
 										>
-											<Icon
-												icon="tdesign:user"
-												color={item.connected ? "#fff" : themeVars.colors.palette.primary.default}
-												size={20}
-											/>
+											<Icon icon="tdesign:user" color={item.connected ? "#fff" : themeVars.colors.palette.primary.default} size={20} />
 										</div>
 									</div>
 								))}

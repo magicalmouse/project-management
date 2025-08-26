@@ -44,15 +44,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export default function CalendarEventForm({
-	type,
-	open,
-	onCancel,
-	initValues = { id: faker.string.uuid() },
-	onEdit,
-	onCreate,
-	onDelete,
-}: Props) {
+export default function CalendarEventForm({ type, open, onCancel, initValues = { id: faker.string.uuid() }, onEdit, onCreate, onDelete }: Props) {
 	const title = type === "add" ? "Add Event" : "Edit Event";
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -143,11 +135,7 @@ export default function CalendarEventForm({
 								<FormItem>
 									<FormLabel>Start</FormLabel>
 									<FormControl>
-										<Input
-											type="datetime-local"
-											value={field.value.toISOString().slice(0, 16)}
-											onChange={(e) => field.onChange(new Date(e.target.value))}
-										/>
+										<Input type="datetime-local" value={field.value.toISOString().slice(0, 16)} onChange={(e) => field.onChange(new Date(e.target.value))} />
 									</FormControl>
 								</FormItem>
 							)}
@@ -159,11 +147,7 @@ export default function CalendarEventForm({
 								<FormItem>
 									<FormLabel>End</FormLabel>
 									<FormControl>
-										<Input
-											type="datetime-local"
-											value={field.value.toISOString().slice(0, 16)}
-											onChange={(e) => field.onChange(new Date(e.target.value))}
-										/>
+										<Input type="datetime-local" value={field.value.toISOString().slice(0, 16)} onChange={(e) => field.onChange(new Date(e.target.value))} />
 									</FormControl>
 								</FormItem>
 							)}

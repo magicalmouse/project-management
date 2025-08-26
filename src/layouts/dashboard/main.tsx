@@ -19,7 +19,7 @@ import { frontendNavData } from "./nav/nav-data/nav-data-frontend";
  */
 function findAuthByPath(path: string): string[] {
 	const foundItem = allItems.find((item) => item.path === path);
-	console.log("allitems", allItems)
+	console.log("allitems", allItems);
 	return foundItem?.auth || [];
 }
 
@@ -34,15 +34,16 @@ const Main = () => {
 
 	const { pathname } = useLocation();
 	const currentNavAuth = findAuthByPath(pathname);
-	console.log(pathname, currentNavAuth)
+	console.log(pathname, currentNavAuth);
 
 	return (
 		<ScrollArea className={cn("flex w-full grow")}>
 			<AuthGuard checkAny={currentNavAuth} fallback={<Page403 />}>
 				<main
 					data-slot="slash-layout-main"
-					className={cn("w-full h-full mx-auto p-2", {
-						"xl:max-w-screen-xl": !themeStretch,
+					className={cn("w-full h-full mx-auto", {
+						"xl:max-w-screen-xl p-2": !themeStretch,
+						"p-0": themeStretch,
 					})}
 				>
 					<Suspense fallback={<LineLoading />}>

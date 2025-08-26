@@ -16,12 +16,12 @@ export function NavItem(item: NavItemProps) {
 	const content = (
 		<>
 			{/* Icon */}
-			<span style={navItemStyles.icon} className="mr-3 items-center justify-center">
-				{icon && typeof icon === "string" ? <Icon icon={icon} /> : icon}
+			<span style={navItemStyles.icon} className="items-center justify-center">
+				{icon && typeof icon === "string" ? <Icon icon={icon} size={18} /> : icon}
 			</span>
 
 			{/* Texts */}
-			<span style={navItemStyles.texts} className="min-h-[24px]">
+			<span style={navItemStyles.texts} className="min-h-[20px]">
 				{/* Title */}
 				<span style={navItemStyles.title}>{t(title)}</span>
 
@@ -59,10 +59,10 @@ export function NavItem(item: NavItemProps) {
 	const itemClassName = cn(
 		navItemClasses.base,
 		navItemClasses.hover,
-		"min-h-[44px]",
-		active && depth === 1 && navItemClasses.active,
-		active && depth !== 1 && "bg-action-hover!",
+		"min-h-[48px]",
+		active && navItemClasses.active,
 		disabled && navItemClasses.disabled,
+		depth && depth > 1 && "ml-2 pl-6", // Indent for nested items
 	);
 
 	return (

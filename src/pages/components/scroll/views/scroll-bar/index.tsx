@@ -9,11 +9,7 @@ export default function ScrollbarView() {
 	return (
 		<>
 			<Button variant="link" asChild>
-				<a
-					href="https://grsmto.github.io/simplebar/"
-					style={{ color: themeVars.colors.palette.primary.default }}
-					className="mb-4 block"
-				>
+				<a href="https://grsmto.github.io/simplebar/" style={{ color: themeVars.colors.palette.primary.default }} className="mb-4 block">
 					https://grsmto.github.io/simplebar/
 				</a>
 			</Button>

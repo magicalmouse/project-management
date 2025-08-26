@@ -2,15 +2,15 @@ import { useMutation } from "@tanstack/react-query";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import userService, { AuthReq, type SignInReq } from "@/api/services/userService";
+import userService, { type AuthReq, type SignInReq } from "@/api/services/userService";
 
-import { toast } from "sonner";
-import type { UserInfo, UserToken } from "#/entity";
-import { StorageEnum } from "#/enum";
-import { useNavigate } from "react-router";
 import { GLOBAL_CONFIG } from "@/global-config";
-import { faker } from "@faker-js/faker";
 import { useRouter } from "@/routes/hooks";
+import type { UserInfo, UserToken } from "@/types/entity";
+import { StorageEnum } from "@/types/enum";
+import { faker } from "@faker-js/faker";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 type UserStore = {
 	userInfo: Partial<UserInfo>;
@@ -63,7 +63,7 @@ export const useSignIn = () => {
 
 	const signInMutation = useMutation({
 		mutationFn: userService.signin,
-		onSuccess: (res) => {			
+		onSuccess: (res) => {
 			const { user, session } = res;
 
 			if (!user || !session) {
@@ -71,7 +71,7 @@ export const useSignIn = () => {
 				return;
 			}
 
-	    const { access_token, refresh_token } = session!;
+			const { access_token, refresh_token } = session || {};
 
 			setUserToken({ access_token, refresh_token });
 			const userInfo: UserInfo = {
@@ -81,19 +81,20 @@ export const useSignIn = () => {
 				country: user.country ?? "",
 				summary: user.summary ?? "",
 				avatar: faker.image.avatarGitHub(),
+				role: user.role, // Set the role directly
 				permissions: [
 					{
 						id: "admin",
 						name: "admin_permission",
-						code: user.role === 0 ? "permission:admin" : "permission:user"
-					}
+						code: user.role === 0 ? "permission:admin" : "permission:user",
+					},
 				],
 
 				app_metadata: user.app_metadata,
 				user_metadata: user.user_metadata,
 				aud: user.aud,
-				created_at: user.created_at
-			}
+				created_at: user.created_at,
+			};
 			setUserInfo(userInfo);
 
 			toast.success("Sign in success!", {
@@ -106,12 +107,12 @@ export const useSignIn = () => {
 			toast.error(err.message, {
 				position: "top-center",
 			});
-		}
+		},
 	});
 
 	const signIn = async (data: AuthReq) => await signInMutation.mutateAsync(data);
 
-	return {signIn, isLoading: signInMutation.isPending};
+	return { signIn, isLoading: signInMutation.isPending };
 };
 
 export const useForgotPassword = () => {
@@ -126,41 +127,44 @@ export const useForgotPassword = () => {
 			toast.error(`Error sending reset link: ${err.message}`, {
 				position: "top-center",
 			});
-		}
+		},
 	});
 
 	const forgotPassword = async (email: string) => await forgotPasswordMutation.mutateAsync(email);
-	return {forgotPassword, isLoading: forgotPasswordMutation.isPending};
-}
+	return { forgotPassword, isLoading: forgotPasswordMutation.isPending };
+};
 
 export const useUpdatePassword = () => {
 	const navigate = useNavigate();
 
 	const updatePasswordMutation = useMutation({
-		mutationFn: userService.updatePassword,
+		mutationFn: ({ newPassword, userId, token }: { newPassword: string; userId: string; token: string }) => {
+			return userService.updatePassword(newPassword, userId, token);
+		},
 		onSuccess: (res) => {
 			toast.success(res, {
 				closeButton: true,
 			});
-	    navigate(GLOBAL_CONFIG.defaultRoute, { replace: true });
+			navigate(GLOBAL_CONFIG.defaultRoute, { replace: true });
 		},
 		onError: (err) => {
 			toast.error(`Error reset password: ${err.message}`, {
 				position: "top-center",
 			});
-		}
+		},
 	});
 
-	const updatePassword = async (newPassword: string) => await updatePasswordMutation.mutateAsync(newPassword);
-	return {updatePassword, isLoading: updatePasswordMutation.isPending};
-}
+	const updatePassword = async (newPassword: string, userId: string, token: string) => await updatePasswordMutation.mutateAsync({ newPassword, userId, token });
+	return { updatePassword, isLoading: updatePasswordMutation.isPending };
+};
 
 export const useUpdateUserProfile = () => {
 	const { id } = useUserInfo();
 	const { setUserInfo } = useUserActions();
 
 	const updateProfileMutation = useMutation({
-		mutationFn: (profile: Partial<UserInfo>) => userService.updateProfile(profile, id!),
+		mutationFn: ({ profile, userId, token }: { profile: Partial<UserInfo>; userId: string; token: string }) =>
+			userService.updateProfile(profile, userId, token),
 		onSuccess: (res) => {
 			setUserInfo(res);
 			toast.success("User profile updated successfully.", {
@@ -171,37 +175,36 @@ export const useUpdateUserProfile = () => {
 			toast.error(`Error update user profile: ${err.message}`, {
 				position: "top-center",
 			});
-		}
+		},
 	});
 
-	const updateProfile = async (profile: Partial<UserInfo>) => await updateProfileMutation.mutateAsync(profile);
-	return { updateProfile, isLoading: updateProfileMutation.isPending }
-}
+	const updateProfile = async (profile: Partial<UserInfo>, userId: string, token: string) =>
+		await updateProfileMutation.mutateAsync({ profile, userId, token });
+	return { updateProfile, isLoading: updateProfileMutation.isPending };
+};
 
 export const useGetUserList = () => {
 	const getUserListMutation = useMutation({
 		mutationFn: userService.getUserList,
-		onSuccess: (res) => {
-
-		},
+		onSuccess: (res) => {},
 		onError: (err) => {
 			toast.error(`Error fetching users: ${err.message}`, {
 				position: "top-center",
 			});
-		}
+		},
 	});
-	
-	const getUserList = async () => await getUserListMutation.mutateAsync();
-	return { getUserList, isLoading: getUserListMutation.isPending }
-}
+
+	const getUserList = async () => await getUserListMutation.mutateAsync("");
+	return { getUserList, isLoading: getUserListMutation.isPending };
+};
 
 export const useDeleteUser = () => {
 	const router = useRouter();
 
 	const deleteUserMutation = useMutation({
-		mutationFn: userService.deleteUser,
+		mutationFn: ({ userId, token }: { userId: string; token: string }) => userService.deleteUser(userId, token),
 		onSuccess: (res) => {
-			toast.success(`User deleted successfully.`, {
+			toast.success("User deleted successfully.", {
 				closeButton: true,
 			});
 			router.reload();
@@ -210,11 +213,11 @@ export const useDeleteUser = () => {
 			toast.error(`Error delete user: ${err.message}`, {
 				position: "top-center",
 			});
-		}
+		},
 	});
-	
-	const deleteUser = async (userId: string) => await deleteUserMutation.mutateAsync(userId);
-	return { deleteUser, isLoading: deleteUserMutation.isPending }
-}
+
+	const deleteUser = async (userId: string, token: string) => await deleteUserMutation.mutateAsync({ userId, token });
+	return { deleteUser, isLoading: deleteUserMutation.isPending };
+};
 
 export default useUserStore;

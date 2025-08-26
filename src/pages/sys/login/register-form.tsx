@@ -3,12 +3,12 @@ import { Button } from "@/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { ReturnButton } from "./components/ReturnButton";
 import { LoginStateEnum, useLoginStateContext } from "./providers/login-provider";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 function RegisterForm() {
 	const { t } = useTranslation();
@@ -34,7 +34,7 @@ function RegisterForm() {
 	const onFinish = async (values: any) => {
 		const { confirmPassword, ...signUpData } = values;
 		await signUpMutation.mutateAsync(signUpData);
-		toast.success("Sign up success! Please confirm your email address.", {
+		toast.success("Sign up success! You can now log in with your credentials.", {
 			closeButton: true,
 		});
 		backToLogin();

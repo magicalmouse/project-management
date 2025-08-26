@@ -66,5 +66,5 @@ export enum HtmlDataAttribute {
 export enum InterviewProgress {
 	PENDING = 0,
 	SUCCESS = 1,
-	FAIL = 2
+	FAIL = 2,
 }

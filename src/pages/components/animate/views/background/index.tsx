@@ -26,11 +26,7 @@ export default function BackgroundView() {
 						<ContainerView variant={selectedVariant} />
 					</div>
 					<div className="flex-1">
-						<ControlPanel
-							variantKey={variantKey}
-							selectedVariant={selectedVariant}
-							onChangeVarient={(varient) => setSelectedVariant(varient)}
-						/>
+						<ControlPanel variantKey={variantKey} selectedVariant={selectedVariant} onChangeVarient={(varient) => setSelectedVariant(varient)} />
 					</div>
 				</div>
 			</CardContent>

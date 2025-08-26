@@ -24,16 +24,7 @@ type Props = {
 	isDragging?: boolean;
 };
 
-export default function KanbanColumn({
-	id,
-	column,
-	tasks,
-	createTask,
-	clearColumn,
-	deleteColumn,
-	renameColumn,
-	isDragging,
-}: Props) {
+export default function KanbanColumn({ id, column, tasks, createTask, clearColumn, deleteColumn, renameColumn, isDragging }: Props) {
 	const { themeMode } = useSettings();
 	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
@@ -141,11 +132,7 @@ export default function KanbanColumn({
 	};
 	return (
 		<div ref={setNodeRef} style={style}>
-			<header
-				{...attributes}
-				{...listeners}
-				className="mb-4 flex select-none items-center justify-between text-base font-semibold"
-			>
+			<header {...attributes} {...listeners} className="mb-4 flex select-none items-center justify-between text-base font-semibold">
 				{renamingTask ? <Input ref={renameTaskInputRef} autoFocus /> : column.title}
 				<DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
 					<DropdownMenuTrigger asChild>

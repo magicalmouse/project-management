@@ -25,31 +25,11 @@ export default function IconPage() {
 					</p>
 
 					<div className="mt-4 flex gap-4">
-						<Icon
-							icon="solar:emoji-funny-square-bold-duotone"
-							size={24}
-							color={themeVars.colors.palette.primary.default}
-						/>
-						<Icon
-							icon="solar:emoji-funny-square-bold-duotone"
-							size={24}
-							color={themeVars.colors.palette.info.default}
-						/>
-						<Icon
-							icon="solar:emoji-funny-square-bold-duotone"
-							size={24}
-							color={themeVars.colors.palette.success.default}
-						/>
-						<Icon
-							icon="solar:emoji-funny-square-bold-duotone"
-							size={24}
-							color={themeVars.colors.palette.warning.default}
-						/>
-						<Icon
-							icon="solar:emoji-funny-square-bold-duotone"
-							size={24}
-							color={themeVars.colors.palette.error.default}
-						/>
+						<Icon icon="solar:emoji-funny-square-bold-duotone" size={24} color={themeVars.colors.palette.primary.default} />
+						<Icon icon="solar:emoji-funny-square-bold-duotone" size={24} color={themeVars.colors.palette.info.default} />
+						<Icon icon="solar:emoji-funny-square-bold-duotone" size={24} color={themeVars.colors.palette.success.default} />
+						<Icon icon="solar:emoji-funny-square-bold-duotone" size={24} color={themeVars.colors.palette.warning.default} />
+						<Icon icon="solar:emoji-funny-square-bold-duotone" size={24} color={themeVars.colors.palette.error.default} />
 					</div>
 				</CardContent>
 			</Card>
@@ -60,11 +40,7 @@ export default function IconPage() {
 					<CardDescription>
 						<span className="mr-1">For more info</span>
 						<Button variant="link" asChild>
-							<a
-								href="https://iconify.design/docs/icon-components/react/add-icon.html"
-								target="_blank"
-								rel="noreferrer"
-							>
+							<a href="https://iconify.design/docs/icon-components/react/add-icon.html" target="_blank" rel="noreferrer">
 								click here
 							</a>
 						</Button>

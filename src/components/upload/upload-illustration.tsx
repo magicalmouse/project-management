@@ -11,12 +11,7 @@ export default function UploadIllustration() {
 		},
 	} = useTheme();
 	return (
-		<svg
-			className="MuiBox-root css-olkjfu"
-			viewBox="0 0 480 360"
-			xmlns="http://www.w3.org/2000/svg"
-			aria-label="Upload Illustration"
-		>
+		<svg className="MuiBox-root css-olkjfu" viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg" aria-label="Upload Illustration">
 			<title>Upload Illustration</title>
 			<defs>
 				<linearGradient id="BG" x1="19.496%" x2="77.479%" y1="71.822%" y2="16.69%">
@@ -214,16 +209,7 @@ export default function UploadIllustration() {
 				d="M352.896 262.437s-8.604-.52-7.588 5.51a1.47 1.47 0 00.763 1.549s0-.449.897-.299c.309.052.623.067.935.045a1.923 1.923 0 001.142-.473c.318-.279 2.419-.998 3.361-4.951 0 0 .697-.861.667-1.085l-1.468.622s.496 1.046.104 1.916c0 0-.048-1.877-.326-1.835-.056 0-.753.364-.753.364s.852 1.824.209 3.152c0 0 .245-2.249-.475-3.02l-1.023.598s.996 1.886.32 3.423c0 0 .174-2.359-.535-3.289l-.927.724s.939 1.857.365 3.133c0 0-.072-2.747-.565-2.954 0 0-.81.715-.933 1.008 0 0 .64 1.348.242 2.06 0 0-.245-1.83-.445-1.839 0 0-.804 1.214-.897 2.042.04-.768.28-1.512.697-2.159a2.427 2.427 0 00-1.235.643s.125-.858 1.435-.933c0 0 .667-.92.846-.974 0 0-1.303-.111-2.093.239 0 0 .694-.807 2.329-.44l.915-.747s-1.713-.233-2.442.024c0 0 .837-.715 2.69-.191l.996-.598s-1.462-.314-2.335-.201c0 0 .921-.496 2.625.042l.711-.32s-1.07-.209-1.384-.242c-.314-.033-.329-.119-.329-.119a3.69 3.69 0 012.012.221s1.519-.553 1.492-.646z"
 			/>
 			<ellipse cx="346.97" cy="270.022" fill={PRIMARY_MAIN} fillRule="nonzero" opacity="0.1" rx="6.09" ry="1.028" />
-			<rect
-				width="51.026"
-				height="91.312"
-				x="303.926"
-				y="69.211"
-				fill="#FFF"
-				fillRule="nonzero"
-				rx="4.737"
-				transform="rotate(-71.99 329.44 114.867)"
-			/>
+			<rect width="51.026" height="91.312" x="303.926" y="69.211" fill="#FFF" fillRule="nonzero" rx="4.737" transform="rotate(-71.99 329.44 114.867)" />
 			<circle cx="303.613" cy="103.507" r="9.376" fill={PRIMARY_MAIN} fillRule="nonzero" opacity="0.2" />
 			<path
 				fill={PRIMARY_MAIN}
@@ -260,16 +246,7 @@ export default function UploadIllustration() {
 				opacity="0.5"
 				transform="rotate(-71.99 350.544 140.3)"
 			/>
-			<rect
-				width="50.3"
-				height="78.305"
-				x="291.549"
-				y="174.486"
-				fill="#FFF"
-				fillRule="nonzero"
-				rx="4"
-				transform="rotate(-57.265 316.7 213.638)"
-			/>
+			<rect width="50.3" height="78.305" x="291.549" y="174.486" fill="#FFF" fillRule="nonzero" rx="4" transform="rotate(-57.265 316.7 213.638)" />
 			<path
 				fill="#DFE3E8"
 				fillRule="nonzero"
@@ -349,12 +326,7 @@ export default function UploadIllustration() {
 				fillRule="nonzero"
 				d="M101.2 260.575s-7.961-16.193-10.147-15.846c-1.037.17-1.516 1.196-1.734 2.218a6.516 6.516 0 00.434 3.941c1.13 2.601 4.165 7.519 11.447 9.687z"
 			/>
-			<path
-				stroke={PRIMARY_DARKER}
-				strokeLinecap="round"
-				strokeWidth="0.5"
-				d="M91.113 247.808s8.353 12.115 9.968 12.647"
-			/>
+			<path stroke={PRIMARY_DARKER} strokeLinecap="round" strokeWidth="0.5" d="M91.113 247.808s8.353 12.115 9.968 12.647" />
 			<path stroke={PRIMARY_DARKER} strokeLinecap="round" strokeWidth="0.5" d="M90.344 249.701L92.293 249.701" />
 			<path stroke={PRIMARY_DARKER} strokeLinecap="round" strokeWidth="0.5" d="M92.68 254.132L95.738 254.263" />
 			<path stroke={PRIMARY_DARKER} strokeLinecap="round" strokeWidth="0.5" d="M94.542 250.586L94.21 252.179" />
@@ -364,12 +336,7 @@ export default function UploadIllustration() {
 				fillRule="nonzero"
 				d="M100.964 260.575s7.959-16.193 10.144-15.846c1.041.17 1.519 1.196 1.734 2.218a6.514 6.514 0 01-.433 3.941c-1.13 2.601-4.168 7.519-11.445 9.687z"
 			/>
-			<path
-				stroke={PRIMARY_DARKER}
-				strokeLinecap="round"
-				strokeWidth="0.5"
-				d="M111.051 247.808s-8.371 12.115-9.97 12.647"
-			/>
+			<path stroke={PRIMARY_DARKER} strokeLinecap="round" strokeWidth="0.5" d="M111.051 247.808s-8.371 12.115-9.97 12.647" />
 			<path stroke={PRIMARY_DARKER} strokeLinecap="round" strokeWidth="0.5" d="M111.82 249.701L109.871 249.701" />
 			<path stroke={PRIMARY_DARKER} strokeLinecap="round" strokeWidth="0.5" d="M109.485 254.132L106.426 254.263" />
 			<path stroke={PRIMARY_DARKER} strokeLinecap="round" strokeWidth="0.5" d="M107.622 250.586L107.954 252.179" />

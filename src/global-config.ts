@@ -38,7 +38,7 @@ export type GlobalConfig = {
 export const GLOBAL_CONFIG: GlobalConfig = {
 	appName: "Project Management",
 	appVersion: packageJson.version,
-	defaultRoute: import.meta.env.VITE_APP_DEFAULT_ROUTE || "/",
+	defaultRoute: import.meta.env.VITE_APP_DEFAULT_ROUTE || "/job-dashboard",
 	publicPath: import.meta.env.VITE_APP_PUBLIC_PATH || "/",
 	apiBaseUrl: import.meta.env.VITE_APP_API_BASE_URL || "/api",
 	resetPasswordUrl: import.meta.env.VITE_RESET_PASSWORD_URL || "/auth/reset-password",

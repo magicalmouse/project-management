@@ -86,13 +86,7 @@ export default function Inview() {
 	return (
 		<Card>
 			<CardHeader>
-				<Toolbar
-					isText={isText}
-					onChnageText={() => setIsText(!isText)}
-					isMulti={isMulti}
-					onChangeMulti={() => setIsMulti(!isMulti)}
-					onRefresh={onRefresh}
-				/>
+				<Toolbar isText={isText} onChnageText={() => setIsText(!isText)} isMulti={isMulti} onChangeMulti={() => setIsMulti(!isMulti)} onRefresh={onRefresh} />
 			</CardHeader>
 			<CardContent>
 				<div className="flex md:flex-row flex-col gap-2">
@@ -100,11 +94,7 @@ export default function Inview() {
 						<ContainerView variant={selectedVariant} isText={isText} isMulti={isMulti} />
 					</div>
 					<div className="flex-1">
-						<ControlPanel
-							variantKey={variantKey}
-							selectedVariant={selectedVariant}
-							onChangeVarient={(varient) => setSelectedVariant(varient)}
-						/>
+						<ControlPanel variantKey={variantKey} selectedVariant={selectedVariant} onChangeVarient={(varient) => setSelectedVariant(varient)} />
 					</div>
 				</div>
 			</CardContent>

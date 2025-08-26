@@ -1,3 +1,4 @@
+import { useAuth } from "@/components/auth/use-auth";
 import { useSignIn, useUpdatePassword, useUserInfo } from "@/store/userStore";
 import { Button } from "@/ui/button";
 import { Card, CardContent } from "@/ui/card";
@@ -16,6 +17,8 @@ type FieldType = {
 export default function SecurityTab() {
 	const navigate = useNavigate();
 	const { updatePassword, isLoading: isUpdatePasswordLoading } = useUpdatePassword();
+	const { access_token } = useAuth();
+	const { id } = useUserInfo();
 
 	const form = useForm<FieldType>({
 		defaultValues: {
@@ -27,8 +30,8 @@ export default function SecurityTab() {
 	const handleSubmit = async (values: FieldType) => {
 		// Handle form submission to update password
 		try {
-			await updatePassword(values.newPassword);
-			navigate("/management/user/account", { replace: true })
+			await updatePassword(values.newPassword, id || "", access_token || "");
+			navigate("/management/user/account", { replace: true });
 		} catch (error) {
 			toast.error(error, { position: "top-center" });
 		}
@@ -74,7 +77,7 @@ export default function SecurityTab() {
 
 						<div className="flex w-full justify-end">
 							<Button type="submit">
-								{(isUpdatePasswordLoading) && <Loader2 className="animate-spin mr-2" />}
+								{isUpdatePasswordLoading && <Loader2 className="animate-spin mr-2" />}
 								Save Changes
 							</Button>
 						</div>

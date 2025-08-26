@@ -32,13 +32,21 @@
 
 ## Quick Start
 
-### Get the Project Code
+### Prerequisites
+
+Before setting up the project, ensure you have:
+- **Node.js** (version 20.x or higher)
+- **MySQL Server** running on your VPS (172.86.88.195)
+- **pnpm** package manager
+
+### 1. Get the Project Code
 
 ```bash
 git clone https://github.com/d3george/slash-admin.git
+cd slash-admin
 ```
 
-### Install Dependencies
+### 2. Install Dependencies
 
 In the project's root directory, run the following command to install project dependencies:
 
@@ -46,15 +54,127 @@ In the project's root directory, run the following command to install project de
 pnpm install
 ```
 
-### Start the Development Server
+### 3. Database Setup
 
-Run the following command to start the development server:
+#### 3.1 Configure Environment Variables
+
+Create a `.env` file in the root directory with your MySQL configuration:
+
+```bash
+# MySQL Database Configuration
+VITE_DB_HOST=172.86.88.195
+VITE_DB_USER=your_mysql_username
+VITE_DB_PASSWORD=your_mysql_password
+VITE_DB_NAME=project_management
+VITE_DB_PORT=3306
+
+# JWT Secret (IMPORTANT: Change this to a secure random string in production)
+VITE_JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+
+# Application URLs
+VITE_RESET_PASSWORD_URL=http://localhost:5173/reset-password
+```
+
+#### 3.2 Create Database Schema
+
+Connect to your MySQL server and create the database:
+
+```bash
+# Connect to MySQL on your VPS
+mysql -h 172.86.88.195 -u your_username -p
+
+# The schema file will automatically create the database and tables
+# Just run the schema file directly:
+source src/api/database/schema.sql;
+
+# Verify tables were created
+USE project_management;
+SHOW TABLES;
+```
+
+This will create the following tables:
+- **`users`** - User accounts and authentication (stores email, password hash, roles)
+- **`profiles`** - User profile information (personal details, job preferences)
+- **`proposals`** - Job applications (job applications and submissions)
+- **`interviews`** - Interview records (interview scheduling and progress)
+- **`user_sessions`** - JWT refresh token management (secure session handling)
+- **`password_reset_tokens`** - Password reset functionality (secure password resets)
+
+### 4. Backend Setup (Required for Dashboard Analytics)
+
+#### 4.1 Install Backend Dependencies
+```bash
+cd backend
+npm install
+```
+
+#### 4.2 Configure Backend Environment
+Create `backend/.env` file with your database configuration:
+```env
+DB_HOST=172.86.88.195
+DB_USER=your_mysql_username
+DB_PASSWORD=your_mysql_password
+DB_NAME=project_management
+DB_PORT=3306
+PORT=4000
+```
+
+#### 4.3 Start Backend Server
+```bash
+cd backend
+npm start
+```
+
+The backend API will run on `http://localhost:4000`.
+
+### 5. Start the Frontend Development Server
+
+In a new terminal, run the following command to start the frontend development server:
 
 ```bash
 pnpm dev
 ```
 
-Visit [http://localhost:3001](http://localhost:3001) to view your application.
+Visit [http://localhost:5173](http://localhost:5173) to view your application.
+
+### 6. Admin User Setup
+
+The admin user has been created in your database with the following credentials:
+
+```
+Email: admin@example.com  (used as username identifier) 
+Password: admin123
+```
+
+⚠️ **IMPORTANT**: Change this password immediately after first login in production!
+
+**Note**: If you need to create additional admin users in the future, you can do so through the application's user management interface after logging in as an admin.
+
+### 7. Test Database Connection
+
+To verify your database connection is working:
+
+1. Open the browser console after starting the application
+2. Look for "Connected to MySQL database successfully" message
+3. If you see connection errors, verify your `.env` configuration
+
+### Troubleshooting
+
+#### Database Connection Issues
+- Verify MySQL server is running on your VPS
+- Check firewall settings allow connections on port 3306
+- Ensure your MySQL user has proper permissions
+- Test connection manually: `mysql -h 172.86.88.195 -u your_username -p`
+
+#### Build Issues
+- Make sure all dependencies are installed: `pnpm install`
+- Clear node_modules and reinstall if needed: `rm -rf node_modules && pnpm install`
+- Check that TypeScript compilation passes: `pnpm build`
+
+#### Environment Variables
+- Ensure `.env` file is in the root directory
+- Verify all required variables are set
+- Restart development server after changing `.env`
 
 ### Build for Production
 
@@ -63,6 +183,51 @@ Run the following command to build the production version:
 ```bash
 pnpm build
 ```
+
+## Quick Reference
+
+### Essential Commands
+```bash
+# Frontend setup
+pnpm install                    # Install frontend dependencies
+pnpm dev                        # Start frontend development server
+pnpm build                      # Build frontend for production
+
+# Backend setup
+cd backend                      # Navigate to backend directory
+npm install                     # Install backend dependencies
+npm start                       # Start backend API server
+npm run dev                     # Start backend with nodemon (auto-restart)
+
+# Full stack development (use two terminals)
+# Terminal 1: Backend
+cd backend && npm start
+
+# Terminal 2: Frontend  
+pnpm dev
+
+# Production build
+pnpm build                      # Build frontend
+cd backend && npm start         # Run backend in production
+```
+
+### Important Files
+- **`.env`** - Frontend environment configuration (create this file)
+- **`backend/.env`** - Backend environment configuration (create this file)
+- **`src/api/database/schema.sql`** - Database schema
+- **`backend/server.js`** - Backend API server
+- **`backend/package.json`** - Backend dependencies
+
+### Default Access
+- **Frontend URL**: http://localhost:5173
+- **Backend API**: http://localhost:4000
+- **Admin Username**: admin@example.com
+- **Admin Password**: admin123 (⚠️ Change in production!)
+
+### Need Help?
+- Check the [Troubleshooting](#troubleshooting) section above
+- Verify your MySQL server is accessible from your development machine
+- Ensure your `.env` file is properly configured
 
 ## Git Contribution submission specification
 - `feat` new features
@@ -79,180 +244,188 @@ pnpm build
 - `wip` in development
 
 
-### Supabase configuration
+## Database Information
 
-# Table configuration
-create table public.interviews (
-  id uuid not null default gen_random_uuid (),
-  created_at timestamp with time zone not null default now(),
-  proposal uuid null,
-  meeting_link text null,
-  meeting_date timestamp with time zone null,
-  interviewer text null,
-  progress smallint null default '0'::smallint,
-  meeting_title text null,
-  "user" uuid null,
-  profile uuid null,
-  job_description text null,
-  constraint interviews_pkey primary key (id),
-  constraint interviews_profile_fkey foreign KEY (profile) references profiles (id) on delete CASCADE,
-  constraint interviews_proposal_fkey foreign KEY (proposal) references proposals (id) on delete CASCADE,
-  constraint interviews_user_fkey foreign KEY ("user") references users (id) on delete CASCADE
-) TABLESPACE pg_default;
+### Technology Stack
+- **Database**: MySQL
+- **Authentication**: Custom JWT-based authentication  
+- **VPS Location**: 172.86.88.195
 
-create table public.profiles (
-  id uuid not null default gen_random_uuid (),
-  created_at timestamp with time zone not null default now(),
-  name text null,
-  dob date null,
-  gender text null,
-  phone text null,
-  email text null,
-  job_sites text null,
-  country text null,
-  "user" uuid null,
-  constraint profiles_pkey primary key (id),
-  constraint profiles_user_fkey foreign KEY ("user") references users (id) on delete CASCADE
-) TABLESPACE pg_default;
+### Database Schema
+The MySQL database includes the following tables:
+- **`users`** - User accounts and authentication data
+- **`profiles`** - User profile information  
+- **`proposals`** - Job applications and submissions
+- **`interviews`** - Interview scheduling and records
+- **`user_sessions`** - JWT refresh token management
+- **`password_reset_tokens`** - Password reset functionality
 
-create table public.proposals (
-  id uuid not null default gen_random_uuid (),
-  created_at timestamp with time zone not null default now(),
-  profile uuid null,
-  job_description text null,
-  resume text null,
-  cover_letter text null,
-  "user" uuid null,
-  job_link text null,
-  company text null,
-  constraint proposals_pkey primary key (id),
-  constraint proposals_profile_fkey foreign KEY (profile) references profiles (id) on delete CASCADE,
-  constraint proposals_user_fkey foreign KEY ("user") references users (id) on delete CASCADE
-) TABLESPACE pg_default;
+### Security Features
+- ✅ JWT-based authentication with refresh tokens
+- ✅ Password hashing using bcryptjs (12 rounds)
+- ✅ SQL injection protection via prepared statements
+- ✅ Session management with automatic cleanup
+- ✅ Secure password reset functionality
 
-create table public.users (
-  id uuid not null,
-  updated_at timestamp with time zone null,
-  username text null,
-  email text null,
-  country text null,
-  status smallint null default '1'::smallint,
-  role smallint null default '1'::smallint,
-  summary text null,
-  constraint users_pkey primary key (id),
-  constraint users_username_key unique (username),
-  constraint users_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE,
-  constraint username_length check ((char_length(username) >= 3))
-) TABLESPACE pg_default;
+## Backend API Server
 
-create trigger on_auth_user_created
-after insert on auth.users
-for each row
-execute function handle_new_user();
+This project includes a dedicated **Node.js Express backend** that provides API endpoints for dashboard analytics, test data management, and database operations.
 
-create or replace function handle_new_user()
-returns trigger
-language plpgsql
-security definer
-as $$
-begin
-  insert into public.users (
-    id,
-    username,
-    email,
-    country,
-    status,
-    role
-  )
-  values (
-    new.id,
-    new.raw_user_meta_data->>'username',
-    new.email,
-    new.raw_user_meta_data->>'country',
-    COALESCE((new.raw_user_meta_data->>'status')::smallint, 1),
-    COALESCE((new.raw_user_meta_data->>'role')::smallint, 1)
-  );
-  return new;
-end;
-$$;
+### Backend Technology Stack
+- **Node.js** with **Express.js** framework
+- **MySQL** database with **mysql2** driver
+- **CORS** enabled for frontend communication
+- **Environment variable** configuration via dotenv
 
+### Backend Architecture
 
-# Policy configuration
+```
+backend/
+├── server.js          # Express server and API routes
+├── db.js             # MySQL connection pool and query helper
+├── dashboard.js      # Dashboard analytics logic
+├── seed.js           # Test data seeding and cleanup
+├── .env             # Database configuration
+└── package.json     # Backend dependencies
+```
 
-Public users are viewable by everyone.
-alter policy "Public users are viewable by everyone."
-on "public"."users"
-to public
-using (
-  true
-);
+### API Endpoints
 
-Users can insert their own profile.
-alter policy "Users can insert their own profile."
-on "public"."users"
-to public
-with check (
-  (( SELECT auth.uid() AS uid) = id)
-);
+#### Dashboard Analytics
+```http
+GET /api/dashboard/stats?userId={userId}&userRole={userRole}
+```
+- **Purpose**: Fetch dashboard statistics based on user role
+- **Parameters**:
+  - `userId`: User ID for filtering data (regular users see only their data)
+  - `userRole`: 0 = Admin (sees all data), 1 = Regular user (sees only own data)
+- **Response**: Complete dashboard statistics including applications, interviews, trends, and admin-specific analytics
 
-Users can update own profile.
-alter policy "Users can update own profile."
-on "public"."users"
-to public
-using (
-  (( SELECT auth.uid() AS uid) = id)
-);
+#### Test Data Management
+```http
+POST /api/dashboard/seed-test-data
+```
+- **Purpose**: Populate database with realistic test data
+- **Creates**: 3 test users, 5 job applications, 3 interviews
+- **Response**: `{ "success": true }` on success
 
-handle_proposal_policy
-alter policy "handle_proposal_policy"
-on "public"."proposals"
-to public
-using (
-  (EXISTS ( SELECT 1
-   FROM users
-  WHERE (users.id = auth.uid())))
-with check (
-  (EXISTS ( SELECT 1
-   FROM users
-  WHERE (users.id = auth.uid())))
-));
+```http
+POST /api/dashboard/clear-test-data
+```
+- **Purpose**: Remove all test data from database
+- **Removes**: All users with @example.com emails and their associated data
+- **Response**: `{ "success": true }` on success
 
-handle_profile_policy
-alter policy "handle_profile_policy"
-on "public"."profiles"
-to public
-using (
-(EXISTS ( SELECT 1
-   FROM users
-  WHERE (users.id = auth.uid())))
-with check (
-(EXISTS ( SELECT 1
-   FROM users
-  WHERE ((users.id = auth.uid()) AND (users.role = 0))))
-));
+### Backend Setup
 
-handle_interview_policy
-alter policy "handle_interview_policy"
-on "public"."interviews"
-to public
-using (
-   (EXISTS ( SELECT 1
-   FROM users
-  WHERE (users.id = auth.uid())))
-with check (
-  (EXISTS ( SELECT 1
-    FROM users
-    WHERE (users.id = auth.uid())))
-));
+#### 1. Install Backend Dependencies
+```bash
+cd backend
+npm install express mysql2 dotenv cors
+```
 
-# Database function configuration
-handle_new_user
-begin
-  insert into public.users (id, username, email, country, status, role)
-  values (new.id, new.raw_user_meta_data->>'username', new.email, new.raw_user_meta_data->>'country', COALESCE((new.raw_user_meta_data->>'status')::smallint, 1), COALESCE((new.raw_user_meta_data->>'role')::smallint, 1));
-  return new;
-end;
+#### 2. Configure Environment Variables
+Create `backend/.env` file:
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=project_management
+DB_PORT=3306
+PORT=4000
+```
 
-You can create table in the SQL Editor(sidebar menu) of supbase dashboard using above table schemas.
-For each table, you need to set policies.(sidebar menu: Authentication => Policies)
-Since we use custom user table(which is public user table), we should set the database function(sidebar menu: Database => Functions).
+#### 3. Start Backend Server
+```bash
+cd backend
+node server.js
+```
+
+The backend will run on `http://localhost:4000` by default.
+
+#### 4. Update Frontend Configuration
+The frontend automatically calls the backend API for all dashboard data:
+- **Development**: `http://localhost:4000/api/dashboard/*`
+- **Production**: Update API URLs to your deployed backend
+
+### Backend Features
+
+#### Role-Based Data Access
+- **Admin Users (role = 0)**:
+  - Access to all applications and interviews across all users
+  - Enhanced analytics: total users, active users, top companies, conversion rates
+  - System-wide statistics and trends
+  
+- **Regular Users (role = 1)**:
+  - Access only to their own applications and interviews
+  - Personal statistics and progress tracking
+  - Individual performance metrics
+
+#### Database Analytics
+The backend provides real-time analytics including:
+- **Basic Metrics**: Total applications, interviews, success rates
+- **Time-Based Data**: Daily, weekly, monthly breakdowns
+- **Trend Analysis**: Application and interview trends over time
+- **Admin Analytics**: User activity, top companies, conversion metrics
+- **Status Tracking**: Application statuses, interview progress
+
+#### Data Validation & Security
+- ✅ **SQL Injection Protection**: All queries use prepared statements
+- ✅ **Role-Based Access Control**: Users can only access their own data
+- ✅ **Error Handling**: Graceful error responses with proper HTTP status codes
+- ✅ **CORS Configuration**: Secure cross-origin requests from frontend
+- ✅ **Environment Configuration**: Sensitive data stored in environment variables
+
+### Development Workflow
+
+#### Full Stack Development
+1. **Start Backend**:
+   ```bash
+   cd backend
+   node server.js
+   ```
+
+2. **Start Frontend** (in separate terminal):
+   ```bash
+   npm run dev
+   ```
+
+3. **Test Integration**:
+   - Visit `http://localhost:5173` (frontend)
+   - Backend API available at `http://localhost:4000`
+   - Dashboard data flows from MySQL → Backend API → Frontend
+
+#### Database Operations
+- **Add Test Data**: Use "Add Test Data to DB" button in admin dashboard
+- **Clear Test Data**: Use "Clear Test Data" button to reset
+- **View Real Data**: All statistics reflect actual database content
+- **Monitor Logs**: Backend console shows all API requests and database operations
+
+### Production Deployment
+
+#### Backend Deployment
+1. **Deploy to Server**: Upload `backend/` folder to your production server
+2. **Install Dependencies**: `npm install express mysql2 dotenv cors`
+3. **Configure Environment**: Update `backend/.env` with production database credentials
+4. **Start Service**: Use PM2 or similar process manager
+   ```bash
+   pm2 start server.js --name "project-management-api"
+   ```
+
+#### Frontend Integration
+Update frontend API calls to use production backend URL:
+```typescript
+const API_BASE = "https://your-backend-domain.com/api/dashboard";
+```
+
+### Monitoring & Maintenance
+
+#### Health Checks
+- **Database Connection**: Monitor MySQL connectivity
+- **API Response Times**: Track endpoint performance
+- **Error Rates**: Monitor failed requests and database errors
+
+#### Backup & Recovery
+- **Database Backups**: Regular MySQL dumps
+- **Application Logs**: Backend request/error logging
+- **Environment Config**: Secure storage of environment variables

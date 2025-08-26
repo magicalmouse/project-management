@@ -37,17 +37,10 @@ export default function UploadListItem({ file, actions, thumbnail = false }: Pro
 	);
 
 	const thumbItem = (
-		<Card
-			className="relative flex items-center justify-center"
-			style={{ width: 80, height: 80, marginTop: "8px", marginRight: "8px" }}
-		>
+		<Card className="relative flex items-center justify-center" style={{ width: 80, height: 80, marginTop: "8px", marginRight: "8px" }}>
 			<Tooltip>
 				<TooltipTrigger>
-					{format === "img" ? (
-						<img src={imgThumbUrl} alt={name} className="w-8 h-8" />
-					) : (
-						<Icon icon={`local:${thumb}`} size={40} />
-					)}
+					{format === "img" ? <img src={imgThumbUrl} alt={name} className="w-8 h-8" /> : <Icon icon={`local:${thumb}`} size={40} />}
 				</TooltipTrigger>
 				<TooltipContent>{name}</TooltipContent>
 			</Tooltip>
@@ -57,11 +50,7 @@ export default function UploadListItem({ file, actions, thumbnail = false }: Pro
 	const cardItem = (
 		<Card className="p-2 mt-2">
 			<div className="flex items-center gap-2">
-				{format === "img" ? (
-					<img src={imgThumbUrl} alt={name} className="w-8 h-8" />
-				) : (
-					<Icon icon={`local:${thumb}`} size={32} />
-				)}
+				{format === "img" ? <img src={imgThumbUrl} alt={name} className="w-8 h-8" /> : <Icon icon={`local:${thumb}`} size={32} />}
 				<div className="ml-4 flex flex-col">
 					<p className="text-sm font-medium">{name}</p>
 					<p className="text-xs">{fBytes(size)}</p>

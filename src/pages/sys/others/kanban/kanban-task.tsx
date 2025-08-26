@@ -108,13 +108,9 @@ function TaskPrioritySvg({ taskPriority }: TaskPrioritySvgProps) {
 		case TaskPriority.HIGH:
 			return <Icon icon="local:ic-rise" size={20} color={themeVars.colors.palette.warning.default} className="" />;
 		case TaskPriority.MEDIUM:
-			return (
-				<Icon icon="local:ic-rise" size={20} color={themeVars.colors.palette.success.default} className="rotate-90" />
-			);
+			return <Icon icon="local:ic-rise" size={20} color={themeVars.colors.palette.success.default} className="rotate-90" />;
 		case TaskPriority.LOW:
-			return (
-				<Icon icon="local:ic-rise" size={20} color={themeVars.colors.palette.info.default} className="rotate-180" />
-			);
+			return <Icon icon="local:ic-rise" size={20} color={themeVars.colors.palette.info.default} className="rotate-180" />;
 		default:
 			break;
 	}

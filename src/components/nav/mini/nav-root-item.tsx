@@ -23,29 +23,24 @@ export const NavRootItem = (item: NavItemProps) => {
 			)}
 
 			{/* Icon */}
-			<span style={navItemStyles.icon}>
-				{item.icon && typeof item.icon === "string" ? <Icon icon={item.icon} /> : item.icon}
+			<span className="flex items-center justify-center w-6 h-6">
+				{item.icon && typeof item.icon === "string" ? <Icon icon={item.icon} size={20} /> : item.icon}
 			</span>
 
 			{/* Arrow */}
-			{item.hasChild && (
-				<Icon icon="eva:arrow-ios-forward-fill" className="absolute right-1 top-2" style={navItemStyles.arrow} />
-			)}
+			{item.hasChild && <Icon icon="eva:arrow-ios-forward-fill" className="absolute right-1 top-2" style={navItemStyles.arrow} />}
 
 			{/* Title */}
-			<span style={navItemStyles.title} className="text-center! text-xs! mt-1">
-				{t(item.title)}
-			</span>
+			<span className="text-center text-[10px] font-medium leading-tight mt-1 px-1 truncate max-w-full">{t(item.title)}</span>
 		</>
 	);
 
 	const itemClassName = cn(
-		navItemClasses.base,
-		navItemClasses.hover,
-		"relative flex-col min-h-12 px-1 pt-2 pb-1.5",
-		item.active && item.depth === 1 && navItemClasses.active,
-		item.active && item.depth !== 1 && "bg-action-hover!",
-		item.disabled && navItemClasses.disabled,
+		"group relative flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-3 text-xs font-medium transition-all duration-200 ease-out cursor-pointer text-gray-600 dark:text-gray-300 min-h-[52px]",
+		"hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100 hover:shadow-sm hover:scale-105",
+		item.active &&
+			"bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 shadow-sm border-2 border-blue-200 dark:border-blue-700",
+		item.disabled && "cursor-not-allowed hover:bg-transparent text-gray-400 dark:text-gray-600 opacity-50",
 	);
 
 	return (

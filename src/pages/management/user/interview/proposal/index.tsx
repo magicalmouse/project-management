@@ -1,12 +1,12 @@
+import { useParams, usePathname, useRouter } from "@/routes/hooks";
+import { useGetProposalList } from "@/store/proposalStore";
+import { useUserInfo } from "@/store/userStore";
 import { Badge } from "@/ui/badge";
+import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
 import Table, { type ColumnsType } from "antd/es/table";
 import { useEffect, useState } from "react";
 import type { ProposalInfo } from "#/entity";
-import { useUserInfo } from "@/store/userStore";
-import { useParams, usePathname, useRouter } from "@/routes/hooks";
-import { useGetProposalList } from "@/store/proposalStore";
-import { Button } from "@/ui/button";
 
 export default function InterviewProposalPage() {
 	// const permissions = useUserPermission();
@@ -43,7 +43,13 @@ export default function InterviewProposalPage() {
 			dataIndex: "job_description",
 			width: 150,
 			sorter: (a, b) => a.id.localeCompare(b.id),
-			render: (_, record) => <div className="overflow-auto max-h-20">{record.job_description}</div>,
+			render: (_, record) => (
+				<div className="max-w-[150px]">
+					<div className="text-sm line-clamp-2 text-gray-700">
+						{record.job_description ? record.job_description.substring(0, 100) + (record.job_description.length > 100 ? "..." : "") : "No description"}
+					</div>
+				</div>
+			),
 		},
 		{
 			title: "Resume",
@@ -60,8 +66,10 @@ export default function InterviewProposalPage() {
 	];
 
 	const fetchData = async () => {
-		const data = await getProposalList(userInfo.id!, profileId!);
-		setDataSource(data);
+		const result = await getProposalList();
+		if (result.data) {
+			setDataSource(result.data.proposals || []);
+		}
 	};
 
 	const handleRowClick = (proposalId: string) => {
@@ -76,7 +84,7 @@ export default function InterviewProposalPage() {
 						{"<"}
 					</Button>
 					<div>Proposal List</div>
-					<div></div>
+					<div />
 				</div>
 			</CardHeader>
 			<CardContent>

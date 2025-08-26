@@ -14,8 +14,8 @@ export const navItemStyles: NavItemStyles = {
 	icon: {
 		display: "inline-flex",
 		flexShrink: 0,
-		width: 22,
-		height: 22,
+		width: 20,
+		height: 20,
 		justifyContent: "center",
 		alignItems: "center",
 	},
@@ -24,6 +24,7 @@ export const navItemStyles: NavItemStyles = {
 		flexDirection: "column",
 		justifyContent: "center",
 		flex: "1 1 auto",
+		minWidth: 0,
 	},
 	title: {
 		display: "-webkit-box",
@@ -34,7 +35,8 @@ export const navItemStyles: NavItemStyles = {
 		fontSize: "0.875rem",
 		fontWeight: 500,
 		textAlign: "left",
-		lineHeight: 18 / 12,
+		lineHeight: 1.4,
+		letterSpacing: "-0.005em",
 	},
 	caption: {
 		display: "-webkit-box",
@@ -46,7 +48,8 @@ export const navItemStyles: NavItemStyles = {
 		fontWeight: 400,
 		color: themeVars.colors.text.disabled,
 		textAlign: "left",
-		lineHeight: 18 / 12,
+		lineHeight: 1.3,
+		marginTop: "2px",
 	},
 
 	info: {

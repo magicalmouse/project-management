@@ -1,13 +1,13 @@
 import { Icon } from "@/components/icon";
+import { useForgotPassword } from "@/store/userStore";
 import { Button } from "@/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { ReturnButton } from "./components/ReturnButton";
 import { LoginStateEnum, useLoginStateContext } from "./providers/login-provider";
-import { useForgotPassword } from "@/store/userStore";
-import { Loader2 } from "lucide-react";
 
 function ResetForm() {
 	const { t } = useTranslation();
@@ -30,7 +30,9 @@ function ResetForm() {
 				<form onSubmit={form.handleSubmit(onFinish)} className="space-y-4">
 					<div className="flex flex-col items-center gap-2 text-center">
 						<h1 className="text-2xl font-bold">{t("sys.login.forgetFormTitle")}</h1>
-						<p className="text-balance text-sm text-muted-foreground">{t("sys.login.forgetFormSecondTitle")}</p>
+						<p className="text-balance text-sm text-muted-foreground">
+							Email functionality is disabled. Contact an administrator for password reset assistance.
+						</p>
 					</div>
 
 					<FormField
@@ -47,7 +49,7 @@ function ResetForm() {
 					/>
 					<Button type="submit" className="w-full">
 						{isLoading && <Loader2 className="animate-spin mr-2" />}
-						{t("sys.login.sendEmailButton")}
+						Request Password Reset
 					</Button>
 					<ReturnButton onClick={backToLogin} />
 				</form>

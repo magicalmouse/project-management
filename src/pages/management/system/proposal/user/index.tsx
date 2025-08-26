@@ -1,20 +1,18 @@
 // import { USER_LIST } from "@/_mock/assets";
 import { usePathname, useRouter } from "@/routes/hooks";
+import { useGetUserList } from "@/store/userStore";
 import { Badge } from "@/ui/badge";
 import { Card, CardContent, CardHeader } from "@/ui/card";
+import { faker } from "@faker-js/faker";
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import { useCallback, useEffect, useMemo } from "react";
 import type { UserInfo } from "#/entity";
 import { BasicStatus } from "#/enum";
-import { useGetUserList } from "@/store/userStore";
-import { useEffect, useMemo } from "react";
-import { faker } from "@faker-js/faker";
 
 // TODO: fix
 // const USERS: UserInfo[] = USER_LIST as UserInfo[];
-const USERS: Partial<UserInfo>[] = [
-	
-];
+const USERS: Partial<UserInfo>[] = [];
 
 export default function ProposalUserPage() {
 	const { push } = useRouter();
@@ -22,19 +20,20 @@ export default function ProposalUserPage() {
 
 	const { getUserList, isLoading } = useGetUserList();
 
-	const onInitial = async () => {
+	const onInitial = useCallback(async () => {
 		USERS.length = 0;
 		const users = await getUserList();
 		USERS.push(...users);
-		console.log(USERS)
-	}
+		console.log(USERS);
+	}, [getUserList]);
+
 	useEffect(() => {
-		onInitial()
-	}, []);
+		onInitial();
+	}, [onInitial]);
 
 	const handleClickRow = (userId: string) => {
 		push(`${pathname}/${userId}`);
-	}
+	};
 
 	const columns: ColumnsType<Partial<UserInfo>> = [
 		{
@@ -58,7 +57,7 @@ export default function ProposalUserPage() {
 			dataIndex: "email",
 			align: "center",
 			width: 120,
-			render: (_, record) => (<span className="text-sm">{record.email}</span>),
+			render: (_, record) => <span className="text-sm">{record.email}</span>,
 		},
 		{
 			title: "Country",
@@ -72,7 +71,7 @@ export default function ProposalUserPage() {
 			dataIndex: "summary",
 			align: "center",
 			width: 120,
-			render: (_, record) => (<span className="text-sm">{record.summary}</span>),
+			render: (_, record) => <span className="text-sm">{record.summary}</span>,
 		},
 		{
 			title: "Status",
@@ -91,18 +90,18 @@ export default function ProposalUserPage() {
 				</div>
 			</CardHeader>
 			<CardContent>
-				<Table 
-					rowKey="id" 
-					size="small" 
-					scroll={{ x: "max-content" }} 
-					loading={isLoading} 
-					columns={columns} 
-					dataSource={USERS} 
+				<Table
+					rowKey="id"
+					size="small"
+					scroll={{ x: "max-content" }}
+					loading={isLoading}
+					columns={columns}
+					dataSource={USERS}
 					onRow={(record, index) => {
 						return {
-							onClick: () => handleClickRow(record.id!),
-							className: "cursor-pointer"
-						}
+							onClick: () => handleClickRow(record.id || ""),
+							className: "cursor-pointer",
+						};
 					}}
 				/>
 			</CardContent>

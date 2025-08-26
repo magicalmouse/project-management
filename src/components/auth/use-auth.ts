@@ -1,6 +1,20 @@
 import { useUserInfo, useUserToken } from "@/store/userStore";
 
 /**
+ * Auth hook that provides user information and authentication status
+ */
+export const useAuth = () => {
+	const userInfo = useUserInfo();
+	const { access_token } = useUserToken();
+
+	return {
+		user: userInfo,
+		isAuthenticated: !!access_token,
+		access_token,
+	};
+};
+
+/**
  * permission/role check hook
  * @param baseOn - check type: 'role' or 'permission'
  *
@@ -36,7 +50,7 @@ export const useAuthCheck = (baseOn: "role" | "permission" = "permission") => {
 
 	// check if any item exists
 	const checkAny = (items: string[]) => {
-		console.log(items)
+		console.log(items);
 		if (items.length === 0) {
 			return true;
 		}

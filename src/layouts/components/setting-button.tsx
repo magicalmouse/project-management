@@ -7,9 +7,9 @@ import { Button } from "@/ui/button";
 import { Card } from "@/ui/card";
 import { ScrollArea } from "@/ui/scroll-area";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/ui/sheet";
+import type { CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { ThemeMode } from "#/enum";
-import type { CSSProperties } from "react";
 
 export default function SettingButton() {
 	const { t } = useTranslation();
