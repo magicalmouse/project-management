@@ -208,6 +208,52 @@ const looksLikeCompanyInfo = (line: string) => {
 // Bullet detector – supports •, -, *, ◦, etc.
 const looksLikeBullet = (line: string) => /^[•▪▫‣⁃◦\-\*]\s+/.test(line);
 
+// Parse text with **bold** markdown syntax and return array of text segments
+const parseTextWithBold = (text: string) => {
+	const segments: Array<{ text: string; bold: boolean }> = [];
+	const parts = text.split(/(\*\*[^*]+\*\*)/g);
+
+	for (const part of parts) {
+		if (part.startsWith("**") && part.endsWith("**")) {
+			// Bold text - remove the ** markers
+			const boldText = part.slice(2, -2);
+			if (boldText) {
+				segments.push({ text: boldText, bold: true });
+			}
+		} else if (part) {
+			// Regular text
+			segments.push({ text: part, bold: false });
+		}
+	}
+
+	return segments;
+};
+
+// Render text with bold formatting support
+const renderTextWithBold = (text: string, baseStyle: any, key: string) => {
+	const segments = parseTextWithBold(text);
+
+	if (segments.length === 1 && !segments[0].bold) {
+		// No bold formatting needed
+		return (
+			<Text key={key} style={baseStyle}>
+				{text}
+			</Text>
+		);
+	}
+
+	// Multiple segments with bold formatting
+	return (
+		<Text key={key} style={baseStyle}>
+			{segments.map((segment, index) => (
+				<Text key={`${key}-segment-${index}-${segment.text.slice(0, 10)}`} style={segment.bold ? { ...baseStyle, fontWeight: "bold" } : baseStyle}>
+					{segment.text}
+				</Text>
+			))}
+		</Text>
+	);
+};
+
 const FormattedTextPDF: React.FC<Props> = ({ text }) => {
 	const lines = text.split("\n").map(normalize);
 
@@ -307,29 +353,17 @@ const FormattedTextPDF: React.FC<Props> = ({ text }) => {
 
 		// Skill categories (e.g., "Programming Language:")
 		if (/^[A-Z][A-Za-z\s]+:\s*$/.test(line) && line.length < 60) {
-			return (
-				<Text key={`${isResumeContent ? "resume" : "job"}-${index}`} style={styles.skillCategory}>
-					{line}
-				</Text>
-			);
+			return renderTextWithBold(line, styles.skillCategory, `${isResumeContent ? "resume" : "job"}-${index}`);
 		}
 
 		// Job title (bold)
 		if (looksLikeJobTitle(line)) {
-			return (
-				<Text key={`${isResumeContent ? "resume" : "job"}-${index}`} style={styles.subheading}>
-					{line}
-				</Text>
-			);
+			return renderTextWithBold(line, styles.subheading, `${isResumeContent ? "resume" : "job"}-${index}`);
 		}
 
 		// Company / date / location (italic)
 		if (looksLikeCompanyInfo(line)) {
-			return (
-				<Text key={`${isResumeContent ? "resume" : "job"}-${index}`} style={styles.jobHeader}>
-					{line}
-				</Text>
-			);
+			return renderTextWithBold(line, styles.jobHeader, `${isResumeContent ? "resume" : "job"}-${index}`);
 		}
 
 		// Bullets
@@ -339,7 +373,7 @@ const FormattedTextPDF: React.FC<Props> = ({ text }) => {
 			return (
 				<View key={`${isResumeContent ? "resume" : "job"}-${index}`} style={styles.bulletRow}>
 					<Text style={styles.bulletPoint}>{bulletChar}</Text>
-					<Text style={styles.bulletText}>{content}</Text>
+					{renderTextWithBold(content, styles.bulletText, `${isResumeContent ? "resume" : "job"}-${index}-bullet`)}
 				</View>
 			);
 		}
@@ -349,19 +383,11 @@ const FormattedTextPDF: React.FC<Props> = ({ text }) => {
 		const isHeadingPattern = /^[A-Z][A-Z\s]+[A-Z]$/.test(line) && line.length < 50;
 		const endsWithColon = line.endsWith(":") && line.length < 50;
 		if (isAllCaps || isHeadingPattern || endsWithColon) {
-			return (
-				<Text key={`${isResumeContent ? "resume" : "job"}-${index}`} style={styles.heading}>
-					{line}
-				</Text>
-			);
+			return renderTextWithBold(line, styles.heading, `${isResumeContent ? "resume" : "job"}-${index}`);
 		}
 
 		// Default body text
-		return (
-			<Text key={`${isResumeContent ? "resume" : "job"}-${index}`} style={styles.text}>
-				{line}
-			</Text>
-		);
+		return renderTextWithBold(line, styles.text, `${isResumeContent ? "resume" : "job"}-${index}`);
 	};
 
 	return (
