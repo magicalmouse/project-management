@@ -10,16 +10,17 @@ import { GLOBAL_CONFIG } from "./global-config";
 import { AntdAdapter } from "./theme/adapter/antd.adapter";
 import { ThemeProvider } from "./theme/theme-provider";
 
-if (import.meta.env.DEV) {
-	import("react-scan").then(({ scan }) => {
-		scan({
-			enabled: false,
-			showToolbar: false,
-			log: false,
-			animationSpeed: "fast",
-		});
-	});
-}
+// React-scan removed - not installed as dependency
+// if (import.meta.env.DEV) {
+// 	import("react-scan").then(({ scan }) => {
+// 		scan({
+// 			enabled: false,
+// 			showToolbar: false,
+// 			log: false,
+// 			animationSpeed: "fast",
+// 		});
+// 	});
+// }
 
 // Create a QueryClient with default options
 const queryClient = new QueryClient({

@@ -66,211 +66,263 @@ export default function InterviewDetailsDialog({ interview, show, onClose, acces
 
 	return (
 		<Dialog open={show} onOpenChange={(open) => !open && onClose()}>
-			<DialogContent className="max-w-[1200px] w-[95vw] max-h-[95vh] overflow-y-auto">
-				<DialogHeader>
-					<DialogTitle className="flex items-center gap-2">
-						<Video className="h-5 w-5" />
-						Interview Details
+			<DialogContent
+				className="dialog-wide max-h-[95vh] overflow-y-auto"
+				style={{
+					maxWidth: "1200px",
+					width: "95vw",
+					minWidth: "95vw",
+				}}
+			>
+				<DialogHeader className="pb-6 border-b border-gray-200">
+					<DialogTitle className="flex items-center gap-3 text-2xl font-bold text-gray-900">
+						<div className="p-2 bg-blue-100 rounded-lg">
+							<Video className="h-6 w-6 text-blue-600" />
+						</div>
+						Interview Details - FIXED WIDTH
 					</DialogTitle>
 				</DialogHeader>
 
-				<div className="space-y-6">
-					{/* Header Information */}
-					<Card>
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2">
-								<FileText className="h-5 w-5 text-blue-600" />
-								{interview.meeting_title || "Untitled Interview"}
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="flex items-center gap-2">
-									<User className="h-4 w-4 text-gray-500" />
-									<div>
-										<Text className="text-sm font-medium">Candidate</Text>
-										<Text className="text-sm text-gray-600">
-											{typeof interview.user === "string" ? interview.user : interview.user?.email || "Unknown User"}
-										</Text>
+				<div className="space-y-6 py-6">
+					{/* Interview Title & Status */}
+					<div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+						<div className="flex items-start justify-between mb-4">
+							<div className="flex items-center gap-3">
+								<div className="p-2 bg-white rounded-lg shadow-sm">
+									<FileText className="h-5 w-5 text-blue-600" />
+								</div>
+								<div>
+									<h3 className="text-xl font-bold text-gray-900">{interview.meeting_title || "Untitled Interview"}</h3>
+									<p className="text-sm text-gray-600 mt-1">Interview Session</p>
+								</div>
+							</div>
+							<Badge variant={getProgressBadgeVariant(interview.progress)} className="text-sm px-3 py-1">
+								{getProgressDisplay(interview.progress).toUpperCase()}
+							</Badge>
+						</div>
+					</div>
+
+					{/* Key Information Grid */}
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+						{/* Participant Information */}
+						<Card className="border-l-4 border-l-blue-500">
+							<CardHeader className="pb-3">
+								<CardTitle className="text-lg flex items-center gap-2">
+									<User className="h-5 w-5 text-blue-600" />
+									Participants
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="bg-gray-50 rounded-lg p-4">
+									<div className="flex items-center gap-3 mb-2">
+										<div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+											<User className="h-4 w-4 text-blue-600" />
+										</div>
+										<div>
+											<p className="text-sm font-medium text-gray-900">Candidate</p>
+											<p className="text-sm text-gray-600">{typeof interview.user === "string" ? interview.user : interview.user?.email || "Unknown User"}</p>
+										</div>
 									</div>
 								</div>
-								<div className="flex items-center gap-2">
-									<User className="h-4 w-4 text-gray-500" />
-									<div>
-										<Text className="text-sm font-medium">Interviewer</Text>
-										<Text className="text-sm text-gray-600">{interview.interviewer || "Not assigned"}</Text>
+								<div className="bg-gray-50 rounded-lg p-4">
+									<div className="flex items-center gap-3 mb-2">
+										<div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+											<User className="h-4 w-4 text-green-600" />
+										</div>
+										<div>
+											<p className="text-sm font-medium text-gray-900">Interviewer</p>
+											<p className="text-sm text-gray-600">{interview.interviewer || "Not assigned"}</p>
+										</div>
 									</div>
 								</div>
-								<div className="flex items-center gap-2">
-									<Calendar className="h-4 w-4 text-gray-500" />
-									<div>
-										<Text className="text-sm font-medium">Date</Text>
-										<Text className="text-sm text-gray-600">{formatDate(interview.meeting_date)}</Text>
+							</CardContent>
+						</Card>
+
+						{/* Schedule Information */}
+						<Card className="border-l-4 border-l-green-500">
+							<CardHeader className="pb-3">
+								<CardTitle className="text-lg flex items-center gap-2">
+									<Calendar className="h-5 w-5 text-green-600" />
+									Schedule
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="bg-gray-50 rounded-lg p-4">
+									<div className="flex items-center gap-3 mb-2">
+										<Calendar className="h-5 w-5 text-gray-500" />
+										<div>
+											<p className="text-sm font-medium text-gray-900">Date</p>
+											<p className="text-sm text-gray-600">{formatDate(interview.meeting_date)}</p>
+										</div>
 									</div>
 								</div>
-								<div className="flex items-center gap-2">
-									<Clock className="h-4 w-4 text-gray-500" />
-									<div>
-										<Text className="text-sm font-medium">Time</Text>
-										<Text className="text-sm text-gray-600">{formatTime(interview.meeting_date)}</Text>
+								<div className="bg-gray-50 rounded-lg p-4">
+									<div className="flex items-center gap-3 mb-2">
+										<Clock className="h-5 w-5 text-gray-500" />
+										<div>
+											<p className="text-sm font-medium text-gray-900">Time</p>
+											<p className="text-sm text-gray-600">{formatTime(interview.meeting_date)}</p>
+										</div>
 									</div>
-								</div>
-								<div className="flex items-center gap-2">
-									<Badge variant={getProgressBadgeVariant(interview.progress)}>{getProgressDisplay(interview.progress)}</Badge>
 								</div>
 								{interview.meeting_link && (
-									<div className="flex items-center gap-2">
-										<Video className="h-4 w-4 text-gray-500" />
-										<div>
-											<Text className="text-sm font-medium">Meeting Link</Text>
-											<a
-												href={interview.meeting_link}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
-											>
-												Join Meeting
-												<ExternalLink className="h-3 w-3" />
-											</a>
+									<div className="bg-gray-50 rounded-lg p-4">
+										<div className="flex items-center gap-3 mb-2">
+											<Video className="h-5 w-5 text-gray-500" />
+											<div className="flex-1">
+												<p className="text-sm font-medium text-gray-900">Meeting Link</p>
+												<Button variant="outline" size="sm" className="mt-2 text-xs" onClick={() => window.open(interview.meeting_link, "_blank")}>
+													<ExternalLink className="h-3 w-3 mr-1" />
+													Join Meeting
+												</Button>
+											</div>
 										</div>
 									</div>
 								)}
-							</div>
-						</CardContent>
-					</Card>
+							</CardContent>
+						</Card>
+					</div>
 
 					{/* Job Description */}
 					{interview.job_description && (
 						<Card>
 							<CardHeader>
-								<CardTitle>Job Description</CardTitle>
+								<CardTitle className="text-lg flex items-center gap-2">
+									<FileText className="h-5 w-5 text-purple-600" />
+									Job Description
+								</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
-									<Text className="text-sm leading-relaxed whitespace-pre-wrap font-normal">{interview.job_description}</Text>
-								</div>
-							</CardContent>
-						</Card>
-					)}
-
-					{/* Notes */}
-					{interview.notes && (
-						<Card>
-							<CardHeader>
-								<CardTitle>Notes</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
-									<Text className="text-sm leading-relaxed whitespace-pre-wrap font-normal">{interview.notes}</Text>
-								</div>
-							</CardContent>
-						</Card>
-					)}
-
-					{/* Feedback */}
-					{interview.feedback && (
-						<Card>
-							<CardHeader>
-								<CardTitle>Feedback</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
-									<Text className="text-sm leading-relaxed whitespace-pre-wrap font-normal">{interview.feedback}</Text>
-								</div>
-							</CardContent>
-						</Card>
-					)}
-
-					{/* Resume Information */}
-					{interview.resume_link && (
-						<Card>
-							<CardHeader>
-								<CardTitle>Resume Information</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="flex items-center gap-2">
-									<FileText className="h-4 w-4 text-gray-500" />
-									<div>
-										<Text className="text-sm font-medium">Resume</Text>
-										<Button
-											variant="link"
-											size="sm"
-											className="h-auto p-0 text-blue-600 hover:text-blue-800"
-											onClick={() => {
-												if (accessToken && interview.resume_link) {
-													// Create a URL with the interview data and access token
-													const viewerUrl = new URL("/resume-viewer", window.location.origin);
-													viewerUrl.searchParams.set("token", accessToken);
-													viewerUrl.searchParams.set("interviewId", interview.id);
-													viewerUrl.searchParams.set("resumeLink", interview.resume_link);
-													viewerUrl.searchParams.set("meetingTitle", interview.meeting_title || "");
-													viewerUrl.searchParams.set("user", typeof interview.user === "string" ? interview.user : interview.user?.email || "");
-													viewerUrl.searchParams.set("interviewer", interview.interviewer || "");
-													viewerUrl.searchParams.set("meetingDate", interview.meeting_date || "");
-
-													// Open the resume viewer page in a new tab
-													const newWindow = window.open(viewerUrl.toString(), "_blank", "noopener,noreferrer,scrollbars=yes,resizable=yes");
-
-													if (newWindow) {
-														newWindow.focus();
-													}
-												} else {
-													console.error("Access token not available for resume viewing");
-													alert("Unable to access resume. Please try again.");
-												}
-											}}
-										>
-											View Resume
-											<ExternalLink className="h-3 w-3 ml-1" />
-										</Button>
+								<div className="bg-gray-50 rounded-lg p-6 min-h-[300px] max-h-[600px] overflow-y-auto">
+									<div className="prose prose-sm max-w-none">
+										<div className="whitespace-pre-wrap text-base text-gray-700 leading-relaxed">{interview.job_description}</div>
 									</div>
 								</div>
 							</CardContent>
 						</Card>
 					)}
 
-					{/* Additional Information */}
-					<Card>
-						<CardHeader>
-							<CardTitle>Additional Information</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-								<div>
-									<Text className="font-medium">Interview ID</Text>
-									<Text className="text-gray-600 font-mono">{interview.id}</Text>
-								</div>
-								<div>
-									<Text className="font-medium">Proposal ID</Text>
-									<Text className="text-gray-600">
-										{typeof interview.proposal === "string" ? interview.proposal : interview.proposal?.id || "Not specified"}
-									</Text>
-								</div>
-								<div>
-									<Text className="font-medium">Profile ID</Text>
-									<Text className="text-gray-600">{typeof interview.profile === "string" ? interview.profile : interview.profile?.id || "Not specified"}</Text>
-								</div>
-								<div>
-									<Text className="font-medium">Selected Resume ID</Text>
-									<Text className="text-gray-600">{interview.selected_resume_id || "Not specified"}</Text>
-								</div>
-								<div>
-									<Text className="font-medium">Created</Text>
-									<Text className="text-gray-600">{formatDate(interview.created_at)}</Text>
-								</div>
-								<div>
-									<Text className="font-medium">Last Updated</Text>
-									<Text className="text-gray-600">{formatDate(interview.created_at)}</Text>
-								</div>
-							</div>
-						</CardContent>
-					</Card>
-				</div>
+					{/* Notes & Feedback */}
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+						{interview.notes && (
+							<Card>
+								<CardHeader>
+									<CardTitle className="text-lg flex items-center gap-2">
+										<FileText className="h-5 w-5 text-orange-600" />
+										Notes
+									</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="bg-orange-50 rounded-lg p-4 border border-orange-100 min-h-[200px] max-h-[400px] overflow-y-auto">
+										<p className="text-base text-gray-700 whitespace-pre-wrap leading-relaxed">{interview.notes}</p>
+									</div>
+								</CardContent>
+							</Card>
+						)}
 
-				<div className="flex justify-end gap-2 pt-4 border-t">
-					<Button variant="outline" onClick={onClose}>
-						Close
-					</Button>
+						{interview.feedback && (
+							<Card>
+								<CardHeader>
+									<CardTitle className="text-lg flex items-center gap-2">
+										<FileText className="h-5 w-5 text-indigo-600" />
+										Feedback
+									</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<div className="bg-indigo-50 rounded-lg p-4 border border-indigo-100 min-h-[200px] max-h-[400px] overflow-y-auto">
+										<p className="text-base text-gray-700 whitespace-pre-wrap leading-relaxed">{interview.feedback}</p>
+									</div>
+								</CardContent>
+							</Card>
+						)}
+					</div>
+
+					{/* Resume Link */}
+					{interview.resume_link && (
+						<Card>
+							<CardHeader>
+								<CardTitle className="text-lg flex items-center gap-2">
+									<FileText className="h-5 w-5 text-red-600" />
+									Resume
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="flex items-center justify-between bg-red-50 rounded-lg p-4 border border-red-100">
+									<div className="flex items-center gap-3">
+										<div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+											<FileText className="h-5 w-5 text-red-600" />
+										</div>
+										<div>
+											<p className="text-sm font-medium text-gray-900">Candidate Resume</p>
+											<p className="text-xs text-gray-600">Click to view the candidate's resume</p>
+										</div>
+									</div>
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => {
+											if (!interview.resume_link) {
+												console.error("No resume link provided");
+												return;
+											}
+
+											if (!accessToken) {
+												console.error("Authentication required to view resume");
+												return;
+											}
+
+											// Fetch the PDF as blob and create object URL to force inline viewing
+											const baseUrl = window.location.origin;
+											const fullUrl = `${baseUrl}${interview.resume_link}?token=${encodeURIComponent(accessToken)}`;
+
+											console.log("🔗 Fetching PDF URL:", fullUrl);
+											console.log("Resume link:", interview.resume_link);
+
+											// Fetch PDF as blob and open in new tab
+											fetch(fullUrl, {
+												method: "GET",
+												headers: {
+													Authorization: `Bearer ${accessToken}`,
+												},
+											})
+												.then((response) => {
+													if (!response.ok) {
+														throw new Error("Failed to fetch PDF");
+													}
+													return response.blob();
+												})
+												.then((blob) => {
+													// Create object URL from blob
+													const blobUrl = URL.createObjectURL(blob);
+
+													// Open in new tab - this will definitely show inline
+													window.open(blobUrl, "_blank");
+
+													// Clean up the object URL after a delay
+													setTimeout(() => {
+														URL.revokeObjectURL(blobUrl);
+													}, 60000); // Clean up after 1 minute
+												})
+												.catch((error) => {
+													console.error("Error fetching PDF:", error);
+													alert("Failed to open PDF. Please try again.");
+												});
+										}}
+									>
+										<ExternalLink className="h-4 w-4 mr-2" />
+										View Resume
+									</Button>
+								</div>
+							</CardContent>
+						</Card>
+					)}
+
+					{/* Action Buttons */}
+					<div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+						<Button variant="outline" onClick={onClose}>
+							Close
+						</Button>
+					</div>
 				</div>
 			</DialogContent>
 		</Dialog>

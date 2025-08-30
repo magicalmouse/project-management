@@ -3,6 +3,7 @@ import Icon from "@/components/icon/icon";
 import { useRouter } from "@/routes/hooks";
 import { Badge } from "@/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
+import { Input } from "@/ui/input";
 import { ModernButton } from "@/ui/modern-button";
 import { ModernCard } from "@/ui/modern-card";
 import { Textarea } from "@/ui/textarea";
@@ -70,6 +71,11 @@ export default function ResumeWorkshop() {
 	// PDF generation states
 	const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
 	const [generatedPdfUrl, setGeneratedPdfUrl] = useState<string | null>(null);
+
+	// Cover letter states
+	const [isGeneratingCoverLetter, setIsGeneratingCoverLetter] = useState(false);
+	const [generatedCoverLetter, setGeneratedCoverLetter] = useState("");
+	const [companyName, setCompanyName] = useState("");
 
 	// ===== EFFECTS =====
 
@@ -148,6 +154,12 @@ export default function ResumeWorkshop() {
 			return;
 		}
 
+		// Prevent multiple simultaneous analyses
+		if (isAnalyzingJob) {
+			console.log("Analysis already in progress, skipping...");
+			return;
+		}
+
 		setIsAnalyzingJob(true);
 		try {
 			console.log("Starting job analysis for description length:", description.length);
@@ -187,23 +199,30 @@ export default function ResumeWorkshop() {
 
 		setJobDescription(value);
 
+		// Clear any existing timeout first to prevent multiple analyses
+		if (window.jobAnalysisTimeout) {
+			clearTimeout(window.jobAnalysisTimeout);
+			window.jobAnalysisTimeout = undefined;
+		}
+
 		// Auto-analyze when job description is pasted (immediate for substantial content)
 		if (value.trim().length > 50) {
-			// Clear any existing timeout
-			if (window.jobAnalysisTimeout) {
-				clearTimeout(window.jobAnalysisTimeout);
-			}
-
 			// Show pending state immediately
 			setIsAnalyzingPending(true);
 
 			// Use shorter timeout for pasted content, longer for typed content
 			const timeout = isPasted ? 500 : 800;
 
-			// Set timeout for analysis
+			// Set timeout for analysis with additional safety check
 			window.jobAnalysisTimeout = setTimeout(() => {
-				setIsAnalyzingPending(false);
-				analyzeJobDescription(value);
+				// Double-check that we're not already analyzing to prevent infinite cycles
+				if (!isAnalyzingJob && !isAnalyzingPending) {
+					setIsAnalyzingPending(false);
+					analyzeJobDescription(value);
+				} else {
+					setIsAnalyzingPending(false);
+				}
+				window.jobAnalysisTimeout = undefined;
 			}, timeout);
 		} else if (value.trim().length === 0) {
 			setJobAnalysis(null);
@@ -217,7 +236,18 @@ export default function ResumeWorkshop() {
 	 * Manual analysis trigger for job description
 	 */
 	const handleManualAnalysis = () => {
+		if (isAnalyzingJob || isAnalyzingPending) {
+			console.log("Analysis already in progress, skipping manual trigger...");
+			return;
+		}
+
 		if (jobDescription.trim().length > 10) {
+			// Clear any pending timeout
+			if (window.jobAnalysisTimeout) {
+				clearTimeout(window.jobAnalysisTimeout);
+				window.jobAnalysisTimeout = undefined;
+			}
+			setIsAnalyzingPending(false);
 			analyzeJobDescription(jobDescription);
 		} else {
 			toast.error("Please enter a job description first");
@@ -355,6 +385,35 @@ export default function ResumeWorkshop() {
 		document.body.removeChild(a);
 
 		toast.success("PDF downloaded successfully!");
+	};
+
+	/**
+	 * Generate cover letter using AI
+	 */
+	const handleGenerateCoverLetter = async () => {
+		if (!extractedText || !jobDescription.trim()) {
+			toast.error("Please upload a resume and enter a job description first");
+			return;
+		}
+
+		if (!companyName.trim()) {
+			toast.error("Please enter a company name");
+			return;
+		}
+
+		setIsGeneratingCoverLetter(true);
+		try {
+			console.log("Generating cover letter...");
+			const coverLetter = await AIService.generateCoverLetter(jobDescription, optimizedResume || extractedText, companyName);
+
+			setGeneratedCoverLetter(coverLetter);
+			toast.success("Cover letter generated successfully!");
+		} catch (error) {
+			console.error("Cover letter generation error:", error);
+			toast.error("Failed to generate cover letter. Please try again.");
+		} finally {
+			setIsGeneratingCoverLetter(false);
+		}
 	};
 
 	return (
@@ -588,6 +647,27 @@ export default function ResumeWorkshop() {
 						</CardContent>
 					</ModernCard>
 
+					{/* Company Name Input */}
+					<ModernCard>
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								<Icon icon="mdi:office-building" className="h-5 w-5" />
+								Company Name
+							</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<div className="space-y-2">
+								<Input
+									type="text"
+									placeholder="Enter company name for cover letter generation..."
+									value={companyName}
+									onChange={(e) => setCompanyName(e.target.value)}
+								/>
+								<Text className="text-xs text-muted-foreground">This will be used to personalize your cover letter</Text>
+							</div>
+						</CardContent>
+					</ModernCard>
+
 					{/* Optimize Button */}
 					<ModernButton onClick={handleOptimizeResume} disabled={!extractedText || !jobDescription.trim() || isOptimizing} className="w-full" glow>
 						{isOptimizing ? (
@@ -704,6 +784,87 @@ export default function ResumeWorkshop() {
 											Download PDF
 										</ModernButton>
 									)}
+								</div>
+
+								{/* Cover Letter Generation Section */}
+								<div className="border-t pt-4">
+									<div className="flex items-center gap-2 mb-3">
+										<Icon icon="mdi:email" className="h-4 w-4" />
+										<Text className="font-medium">Cover Letter</Text>
+									</div>
+									<ModernButton
+										onClick={handleGenerateCoverLetter}
+										disabled={isGeneratingCoverLetter || !extractedText || !jobDescription.trim() || !companyName.trim()}
+										variant="outline"
+										className="w-full"
+									>
+										{isGeneratingCoverLetter ? (
+											<>
+												<m.div
+													animate={{ rotate: 360 }}
+													transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+													className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full mr-2"
+												/>
+												Generating Cover Letter...
+											</>
+										) : (
+											<>
+												<Icon icon="mdi:email-edit" className="mr-2" />
+												Generate Cover Letter
+											</>
+										)}
+									</ModernButton>
+								</div>
+							</CardContent>
+						</ModernCard>
+					)}
+
+					{/* Generated Cover Letter Display */}
+					{generatedCoverLetter && (
+						<ModernCard>
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Icon icon="mdi:email" className="h-5 w-5" />
+									Generated Cover Letter
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-4">
+									<div className="p-4 bg-muted/50 rounded-lg">
+										<pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed">{generatedCoverLetter}</pre>
+									</div>
+									<div className="flex gap-2">
+										<ModernButton
+											onClick={() => {
+												const blob = new Blob([generatedCoverLetter], { type: "text/plain" });
+												const url = URL.createObjectURL(blob);
+												const a = document.createElement("a");
+												a.href = url;
+												a.download = `cover_letter_${companyName.replace(/\s+/g, "_")}.txt`;
+												document.body.appendChild(a);
+												a.click();
+												document.body.removeChild(a);
+												URL.revokeObjectURL(url);
+												toast.success("Cover letter downloaded successfully!");
+											}}
+											variant="outline"
+											className="w-full"
+										>
+											<Icon icon="mdi:download" className="mr-2" />
+											Download Cover Letter
+										</ModernButton>
+										<ModernButton
+											onClick={() => {
+												navigator.clipboard.writeText(generatedCoverLetter);
+												toast.success("Cover letter copied to clipboard!");
+											}}
+											variant="outline"
+											className="w-full"
+										>
+											<Icon icon="mdi:content-copy" className="mr-2" />
+											Copy to Clipboard
+										</ModernButton>
+									</div>
 								</div>
 							</CardContent>
 						</ModernCard>

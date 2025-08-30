@@ -319,22 +319,80 @@ export async function modifyResume(request: ResumeModificationRequest): Promise<
 }
 
 export async function generateCoverLetter(jobDescription: string, resume: string, companyName: string): Promise<string> {
+	// Get current date in proper format
+	const currentDate = new Date().toLocaleDateString("en-US", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
+
 	const prompt = `
-	Generate a compelling cover letter for the following job application:
+	Tailor the job description and resume to create a compelling cover letter. Use power verbs and give a non-AI generated feeling. Add conjunctions and natural language to sound authentic and human.
 
 	**Company:** ${companyName}
 	**Job Description:** ${jobDescription}
 	**Resume:** ${resume}
+	**Current Date:** ${currentDate}
 
-	**Requirements:**
-	1. Address the specific requirements in the job description
-	2. Highlight relevant experience from the resume
-	3. Show enthusiasm for the company and role
-	4. Keep it professional but engaging
-	5. Length: 3-4 paragraphs maximum
-	6. Include specific examples of achievements
+	**CRITICAL STRUCTURE - Follow this exact format:**
 
-	Return only the cover letter text, no additional formatting or explanations.
+	**HEADER SECTION:**
+	- Extract candidate's name, email, phone number, and location from the resume
+	- Format as professional header
+	- Use the provided current date: ${currentDate}
+	- Include company name and "Hiring Manager" salutation
+
+	**COVER LETTER BODY - 4 paragraphs:**
+
+	**Paragraph 1 - PROBLEM (1-2 sentences maximum):**
+	State the specific PROBLEM that the company faces. What is the issue/need/opportunity that this role will address? Extract this from the job description.
+
+	**Paragraph 2 - SOLUTION (1-2 sentences maximum):**
+	What SOLUTION do you offer? How are you the answer to their need? Position yourself as the solution to their problem.
+
+	**Paragraph 3 - EXPLANATION (3-4 sentences):**
+	What experience do you have that supports your assertion that you can help? Use specific examples from the resume that directly relate to solving their problem. Include metrics and achievements.
+
+	**Paragraph 4 - CALL TO ACTION (1-2 sentences):**
+	Kindly suggest next steps using phrases like "I would love to..." or similar natural language. Make it conversational and genuine.
+
+	**CLOSING:**
+	Professional closing with "Sincerely," followed by the candidate's name
+
+	**WRITING STYLE REQUIREMENTS:**
+	- Use power verbs throughout (developed, implemented, optimized, transformed, etc.)
+	- Add natural conjunctions (and, but, however, moreover, furthermore, etc.)
+	- Include conversational elements to avoid AI-generated feeling
+	- Use varied sentence structures and lengths
+	- Make it sound authentic and human-written
+	- Incorporate specific keywords from the job description naturally
+	- Match the tone to the company culture if evident from the job description
+
+	**FORMAT EXAMPLE:**
+	[Candidate Name]
+	[Email] | [Phone] | [Location]
+
+	${currentDate}
+
+	Dear ${companyName} Hiring Manager,
+
+	[Paragraph 1 - Problem identification]
+
+	[Paragraph 2 - Solution positioning]
+
+	[Paragraph 3 - Experience explanation with specific examples]
+
+	[Paragraph 4 - Call to action]
+
+	Sincerely,
+	[Candidate Name]
+
+	**CRITICAL REQUIREMENTS:**
+	1. Use the EXACT date provided: ${currentDate} - do not change or modify this date
+	2. Extract all contact information from the resume provided
+	3. Return only the complete cover letter text with proper formatting and line breaks
+	4. Do not include any placeholder brackets or template text
+	5. Use the exact date format as provided above
 	`;
 
 	return await callOpenAI(prompt);

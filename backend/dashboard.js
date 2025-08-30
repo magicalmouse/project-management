@@ -3,11 +3,36 @@ const { query } = require("./db");
 async function getDashboardStats(userId, userRole, timePeriod = "month") {
 	const isAdmin = userRole === 0;
 
+	console.log(`🔍 Dashboard called for userId: ${userId}, userRole: ${userRole}, isAdmin: ${isAdmin}`);
+
 	// Proposals
 	const proposals = isAdmin ? await query("SELECT * FROM proposals") : await query("SELECT * FROM proposals WHERE user = ?", [userId]);
 
 	// Interviews
 	const interviews = isAdmin ? await query("SELECT * FROM interviews") : await query("SELECT * FROM interviews WHERE user = ?", [userId]);
+
+	// Debug logging for interview calculations
+	console.log(`📊 Dashboard Debug - User ${userId}:`);
+	console.log(`   Total interviews in DB: ${interviews.length}`);
+	console.log(
+		`   Interview details:`,
+		interviews.map((i) => ({
+			id: i.id,
+			meeting_title: i.meeting_title,
+			progress: i.progress,
+			created_at: i.created_at,
+			user: i.user,
+		})),
+	);
+
+	// Count by progress
+	const progressCounts = {
+		pending: interviews.filter((i) => i.progress === 0 || i.progress === "0" || i.progress === "PENDING").length,
+		success: interviews.filter((i) => i.progress === 1 || i.progress === "1" || i.progress === "SUCCESS").length,
+		fail: interviews.filter((i) => i.progress === 2 || i.progress === "2" || i.progress === "FAIL").length,
+	};
+	console.log(`   Progress counts:`, progressCounts);
+	console.log(`   Total should be: ${progressCounts.pending + progressCounts.success + progressCounts.fail}`);
 
 	// Users (admin only)
 	const users = isAdmin ? await query("SELECT * FROM users") : [];
@@ -43,6 +68,13 @@ async function getDashboardStats(userId, userRole, timePeriod = "month") {
 	const totalApplications = filteredProposals.length;
 	const totalInterviews = filteredInterviews.length;
 
+	// Always show total counts regardless of time period for main stats
+	const allTimeApplications = proposals.length;
+	const allTimeInterviews = interviews.length;
+
+	console.log(`   allTimeApplications: ${allTimeApplications}`);
+	console.log(`   allTimeInterviews: ${allTimeInterviews}`);
+
 	// Stats for different time periods (for trend calculation)
 	const applicationsThisMonth = proposals.filter((p) => inRange(p.created_at, startOfMonth)).length;
 	const interviewsThisMonth = interviews.filter((i) => inRange(i.created_at, startOfMonth)).length;
@@ -51,9 +83,9 @@ async function getDashboardStats(userId, userRole, timePeriod = "month") {
 	const applicationsToday = proposals.filter((p) => inRange(p.created_at, startOfDay)).length;
 	const interviewsToday = interviews.filter((i) => inRange(i.created_at, startOfDay)).length;
 
-	// Trends (simplified)
-	const applicationTrend = totalApplications > 0 ? Math.round((applicationsThisWeek / totalApplications) * 100) : 0;
-	const interviewTrend = totalInterviews > 0 ? Math.round((interviewsThisWeek / totalInterviews) * 100) : 0;
+	// Trends (simplified) - use all-time data for trend calculation
+	const applicationTrend = allTimeApplications > 0 ? Math.round((applicationsThisWeek / allTimeApplications) * 100) : 0;
+	const interviewTrend = allTimeInterviews > 0 ? Math.round((interviewsThisWeek / allTimeInterviews) * 100) : 0;
 
 	// Calculate trends based on the selected time period
 	const trendData = [];
@@ -173,18 +205,22 @@ async function getDashboardStats(userId, userRole, timePeriod = "month") {
 	const recentApplications = filteredProposals.slice(-5);
 	const upcomingInterviews = filteredInterviews.filter((i) => new Date(i.meeting_date) > now).slice(0, 5);
 
-	// Status breakdowns (use filtered data based on time period)
+	// Status breakdowns (use ALL data for main stats, not filtered by time period)
 	const applicationsByStatus = {
-		applied: filteredProposals.filter((p) => p.status === "applied").length,
-		interviewing: filteredProposals.filter((p) => p.status === "interviewing").length,
-		offered: filteredProposals.filter((p) => p.status === "offered").length,
-		rejected: filteredProposals.filter((p) => p.status === "rejected").length,
+		applied: proposals.filter((p) => p.status === "applied").length,
+		interviewing: proposals.filter((p) => p.status === "interviewing").length,
+		offered: proposals.filter((p) => p.status === "offered").length,
+		rejected: proposals.filter((p) => p.status === "rejected").length,
 	};
 	const interviewsByProgress = {
-		scheduled: filteredInterviews.filter((i) => i.progress === 0).length, // PENDING
-		completed: filteredInterviews.filter((i) => i.progress === 1).length, // SUCCESS
-		cancelled: filteredInterviews.filter((i) => i.progress === 2).length, // FAIL
+		scheduled: interviews.filter((i) => i.progress === 0 || i.progress === "0" || i.progress === "PENDING").length, // PENDING
+		completed: interviews.filter((i) => i.progress === 1 || i.progress === "1" || i.progress === "SUCCESS").length, // SUCCESS
+		cancelled: interviews.filter((i) => i.progress === 2 || i.progress === "2" || i.progress === "FAIL").length, // FAIL
 	};
+
+	// Debug the progress breakdown
+	console.log(`   Final interviewsByProgress:`, interviewsByProgress);
+	console.log(`   Total calculated: ${interviewsByProgress.scheduled + interviewsByProgress.completed + interviewsByProgress.cancelled}`);
 
 	// Admin analytics
 	let adminStats = {};
@@ -206,7 +242,7 @@ async function getDashboardStats(userId, userRole, timePeriod = "month") {
 	}
 
 	// If DB is empty, return all zeros
-	const hasRealData = totalApplications > 0 || totalInterviews > 0;
+	const hasRealData = allTimeApplications > 0 || allTimeInterviews > 0;
 	if (!hasRealData) {
 		return {
 			totalApplications: 0,
@@ -232,8 +268,9 @@ async function getDashboardStats(userId, userRole, timePeriod = "month") {
 	}
 
 	return {
-		totalApplications,
-		totalInterviews,
+		// Use all-time counts for main dashboard stats
+		totalApplications: allTimeApplications,
+		totalInterviews: allTimeInterviews,
 		applicationsThisMonth,
 		interviewsThisMonth,
 		applicationsThisWeek,

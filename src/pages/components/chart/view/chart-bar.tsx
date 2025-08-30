@@ -13,5 +13,5 @@ export default function ChartBar() {
 		},
 	});
 
-	return <Chart type="bar" series={[{ data: series }]} options={chartOptions} height={320} />;
+	return <Chart type="bar" series={[{ name: "Data", data: series }]} options={chartOptions} height={320} />;
 }

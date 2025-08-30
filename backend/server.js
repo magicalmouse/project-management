@@ -139,6 +139,27 @@ app.put("/api/interviews/:id", authenticateToken, interviewController.updateInte
 app.delete("/api/interviews/:id", authenticateToken, interviewController.deleteInterview);
 app.get("/api/interviews/:id/scheduled-resume", authenticateToken, interviewController.getScheduledResume);
 app.get("/api/interviews/:id/scheduled-resume-pdf", interviewController.getScheduledResumePDFFile);
+app.get("/api/test-resume/:filename", (req, res) => {
+	const fs = require("fs");
+	const path = require("path");
+	const { filename } = req.params;
+
+	console.log("🔍 Test endpoint called for filename:", filename);
+
+	const scheduleResumesDir = path.join(__dirname, "uploads", "schedule", "resumes");
+	const filePath = path.join(scheduleResumesDir, filename);
+
+	console.log("🔍 Looking for file at:", filePath);
+
+	if (!fs.existsSync(filePath)) {
+		return res.status(404).json({ error: "File not found" });
+	}
+
+	const pdfBuffer = fs.readFileSync(filePath);
+	res.setHeader("Content-Type", "application/pdf");
+	res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
+	res.send(pdfBuffer);
+});
 
 // Saved Resume Management
 app.get("/api/saved-resumes", authenticateToken, savedResumeController.getSavedResumeList);

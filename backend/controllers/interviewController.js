@@ -518,8 +518,13 @@ async function getScheduledResumePDFFile(req, res) {
 		// Handle token from query parameter or Authorization header
 		const token = req.query.token || req.headers.authorization?.replace("Bearer ", "");
 		console.log("🔍 Token found:", !!token);
+		console.log("🔍 Token from query:", !!req.query.token);
+		console.log("🔍 Token from header:", !!req.headers.authorization);
+		console.log("🔍 Raw query token (first 50 chars):", req.query.token ? req.query.token.substring(0, 50) + "..." : "none");
+		console.log("🔍 Raw auth header:", req.headers.authorization ? req.headers.authorization.substring(0, 50) + "..." : "none");
 
 		if (!token) {
+			console.log("🔍 No token found, returning 401");
 			return res.status(401).json({ error: "Access token required" });
 		}
 
@@ -564,9 +569,9 @@ async function getScheduledResumePDFFile(req, res) {
 		// Get the scheduled PDF file path from the schedule folder
 		const interviews = await query(
 			`
-			SELECT i.meeting_title, i.meeting_date, sr.company
+			SELECT i.meeting_title, i.meeting_date, i.selected_resume_id, sr.company
 			FROM interviews i
-			JOIN saved_resumes sr ON i.selected_resume_id = sr.id
+			LEFT JOIN saved_resumes sr ON i.selected_resume_id = sr.id
 			WHERE i.id = ?
 		`,
 			[id],
@@ -580,18 +585,79 @@ async function getScheduledResumePDFFile(req, res) {
 
 		// Construct the expected filename in the schedule folder
 		const date = new Date(interview.meeting_date).toISOString().split("T")[0];
-		const meetingTitle = interview.meeting_title.replace(/[^a-zA-Z0-9.-]/g, "_").substring(0, 30);
+		const meetingTitle = interview.meeting_title ? interview.meeting_title.replace(/[^a-zA-Z0-9.-]/g, "_").substring(0, 30) : "Interview";
 		const companyName = interview.company ? interview.company.replace(/[^a-zA-Z0-9.-]/g, "_").substring(0, 20) : "Unknown";
 
 		// Look for the PDF file in the schedule/resumes directory
 		const scheduleResumesDir = path.join(__dirname, "..", "uploads", "schedule", "resumes");
 		const files = fs.readdirSync(scheduleResumesDir);
-		const expectedPattern = `schedule_${date}_${meetingTitle}_${companyName}`;
+		const expectedPattern = `schedule_${date}_${meetingTitle}`;
 
-		const matchingFile = files.find((file) => file.startsWith(expectedPattern) && file.endsWith(".pdf"));
+		console.log("🔍 Looking for PDF file:");
+		console.log("🔍 Schedule dir:", scheduleResumesDir);
+		console.log("🔍 Available files:", files);
+		console.log("🔍 Expected pattern:", expectedPattern);
+		console.log("🔍 Date:", date);
+		console.log("🔍 Meeting title:", meetingTitle);
+		console.log("🔍 Company name:", companyName);
+
+		// Try multiple matching strategies
+		let matchingFile = files.find((file) => file.startsWith(expectedPattern) && file.endsWith(".pdf"));
 
 		if (!matchingFile) {
-			return res.status(404).json({ error: "Scheduled PDF file not found" });
+			// Try matching with just date and partial meeting title
+			const partialPattern = `schedule_${date}_${meetingTitle.substring(0, 15)}`;
+			console.log("🔍 Trying partial pattern:", partialPattern);
+			matchingFile = files.find((file) => file.startsWith(partialPattern) && file.endsWith(".pdf"));
+		}
+
+		if (!matchingFile) {
+			// Try matching with just date and interview ID
+			const idPattern = `schedule_${date}`;
+			console.log("🔍 Trying date pattern:", idPattern);
+			matchingFile = files.find((file) => file.startsWith(idPattern) && file.includes(id.substring(0, 8)) && file.endsWith(".pdf"));
+		}
+
+		if (!matchingFile) {
+			// Try matching by date only (for the correct interview date)
+			console.log("🔍 Trying date-only search for:", date);
+			const dateFiles = files.filter((file) => file.includes(date) && file.endsWith(".pdf"));
+			console.log("🔍 Files matching date:", dateFiles);
+
+			if (dateFiles.length === 1) {
+				// If there's only one file for this date, use it
+				matchingFile = dateFiles[0];
+				console.log("🔍 Using single date match:", matchingFile);
+			} else if (dateFiles.length > 1) {
+				// If multiple files, try to find one with similar meeting title
+				const titleWords = meetingTitle.toLowerCase().split("_");
+				matchingFile = dateFiles.find((file) => titleWords.some((word) => word.length > 2 && file.toLowerCase().includes(word)));
+				console.log("🔍 Using title-based match from date files:", matchingFile);
+			}
+		}
+
+		if (!matchingFile) {
+			// Last resort: find any file that contains the interview ID
+			console.log("🔍 Trying ID-based search for:", id);
+			matchingFile = files.find((file) => file.includes(id) && file.endsWith(".pdf"));
+		}
+
+		console.log("🔍 Final matching file found:", matchingFile);
+
+		if (!matchingFile) {
+			console.log("🔍 No matching file found with any strategy, returning 404");
+			console.log("🔍 Interview ID:", id);
+			console.log("🔍 All available files:", files);
+			return res.status(404).json({
+				error: "Scheduled PDF file not found",
+				debug: {
+					interviewId: id,
+					expectedPattern,
+					availableFiles: files,
+					searchDate: date,
+					searchTitle: meetingTitle,
+				},
+			});
 		}
 
 		const scheduledPdfPath = path.join(scheduleResumesDir, matchingFile);
@@ -603,9 +669,9 @@ async function getScheduledResumePDFFile(req, res) {
 		// Read the scheduled PDF file directly
 		const pdfBuffer = fs.readFileSync(scheduledPdfPath);
 
-		// Set headers for PDF download with cache-busting
+		// Set headers for PDF inline viewing (not download)
 		res.setHeader("Content-Type", "application/pdf");
-		res.setHeader("Content-Disposition", `attachment; filename="interview_resume_${id}_${Date.now()}.pdf"`);
+		res.setHeader("Content-Disposition", `inline; filename="interview_resume_${id}_${Date.now()}.pdf"`);
 		res.setHeader("Content-Length", pdfBuffer.length);
 		res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		res.setHeader("Pragma", "no-cache");

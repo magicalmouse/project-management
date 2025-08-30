@@ -189,10 +189,43 @@ const deleteInterview = async (interviewId: string, token: string) => {
 	}
 };
 
+const updateInterview = async (interviewId: string, updateData: Partial<InterviewInfo>, token: string) => {
+	try {
+		const data = {
+			meetingTitle: updateData.meeting_title,
+			meetingDate: updateData.meeting_date,
+			meetingLink: updateData.meeting_link,
+			interviewer: updateData.interviewer,
+			progress: updateData.progress,
+			notes: updateData.notes,
+			feedback: updateData.feedback,
+		};
+
+		const response = await apiClient.put<ApiResponse>({
+			url: `/interviews/${interviewId}`,
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+			data,
+		});
+
+		if (response.success) {
+			console.log("Interview updated:", response.interview);
+			return response.interview;
+		}
+
+		throw new Error("Failed to update interview");
+	} catch (error: any) {
+		console.error("Update interview error:", error);
+		throw new Error(error.response?.data?.error || error.message || "Failed to update interview");
+	}
+};
+
 export default {
 	createAndUpdateInterview,
 	getInterviewList,
 	getInterviewById,
 	deleteInterview,
 	getScheduledResume,
+	updateInterview,
 };

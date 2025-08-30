@@ -253,3 +253,17 @@
 	--layout-header-height: 64px;
 	--layout-multi-tabs-height: 48px;
 }
+
+/* Custom Dialog Width Override */
+.dialog-wide {
+	max-width: 1200px !important;
+	width: 95vw !important;
+	min-width: 95vw !important;
+}
+
+@media (min-width: 640px) {
+	.dialog-wide {
+		max-width: 1200px !important;
+		width: 95vw !important;
+	}
+}

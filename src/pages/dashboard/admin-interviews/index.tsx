@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import interviewService from "@/api/services/interviewService";
 import type { InterviewInfo } from "@/types/entity";
 
+import EditInterviewDialog from "./edit-interview-dialog";
 // Import components
 import InterviewDetailsDialog from "./interview-details-dialog";
 
@@ -43,8 +44,6 @@ const timeOptions = [
 ];
 
 export default function AdminInterviews() {
-	console.log("AdminInterviews component is rendering");
-
 	const { user, access_token } = useAuth();
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
@@ -64,6 +63,7 @@ export default function AdminInterviews() {
 	// Dialog states
 	const [selectedInterview, setSelectedInterview] = useState<InterviewInfo | null>(null);
 	const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+	const [showEditDialog, setShowEditDialog] = useState(false);
 
 	// Check if user is admin
 	useEffect(() => {
@@ -78,7 +78,7 @@ export default function AdminInterviews() {
 		const fetchInterviews = async () => {
 			if (!user || user.role !== 0 || !access_token) return;
 
-			console.log("AdminInterviews Debug - Fetching interviews for timeFilter:", timeFilter);
+			// Fetching interviews for timeFilter: ${timeFilter}
 			setLoading(true);
 			setError(null);
 			try {
@@ -124,7 +124,7 @@ export default function AdminInterviews() {
 						break;
 				}
 
-				console.log("AdminInterviews Debug - Date range:", { startDate, endDate, timeFilter });
+				// Date range: ${startDate} to ${endDate} for ${timeFilter}
 
 				const response = await interviewService.getInterviewList(access_token, {
 					limit: 1000,
@@ -132,7 +132,7 @@ export default function AdminInterviews() {
 					endDate,
 				});
 
-				console.log("AdminInterviews Debug - API Response:", response);
+				// API Response received
 
 				if (response?.interviews) {
 					// Validate that interviews are proper objects with required fields
@@ -140,23 +140,14 @@ export default function AdminInterviews() {
 						return interview && typeof interview === "object" && interview.id && interview.meeting_title;
 					});
 
-					console.log("AdminInterviews Debug - Valid interviews:", validInterviews.length, "out of", response.interviews.length);
+					// Valid interviews: ${validInterviews.length} out of ${response.interviews.length}
 
-					// Debug: Log interview details to see progress values
-					validInterviews.forEach((interview: any, index: number) => {
-						console.log(`AdminInterviews Debug - Interview ${index + 1}:`, {
-							id: interview.id,
-							title: interview.meeting_title,
-							progress: interview.progress,
-							date: interview.meeting_date,
-							interviewer: interview.interviewer,
-						});
-					});
+					// Interview details logged for debugging
 
 					setInterviews(validInterviews);
 					setFilteredInterviews(validInterviews);
 				} else {
-					console.warn("AdminInterviews Debug - No interviews in response:", response);
+					console.warn("No interviews found in API response");
 					setInterviews([]);
 					setFilteredInterviews([]);
 				}
@@ -240,9 +231,7 @@ export default function AdminInterviews() {
 	// Chart data for progress distribution - ensure all values are valid numbers
 	const chartSeries = [stats.scheduled || 0, stats.completed || 0, stats.cancelled || 0];
 
-	// Debug logging for chart data
-	console.log("AdminInterviews Debug - Stats:", stats);
-	console.log("AdminInterviews Debug - Chart Series:", chartSeries);
+	// Chart data ready for display
 
 	// Always create chart to maintain hook order consistency
 	const progressChart = useChart({
@@ -299,8 +288,7 @@ export default function AdminInterviews() {
 	});
 
 	// Debug: Log selected date interviews
-	console.log("AdminInterviews Debug - Selected date:", selectedDate?.toDateString());
-	console.log("AdminInterviews Debug - Selected date interviews:", selectedDateInterviews.length);
+	// Selected date interviews calculated
 
 	// Recent interviews (last 5 based on filtered data)
 	const recentInterviews = filteredInterviews.sort((a, b) => new Date(b.meeting_date || "").getTime() - new Date(a.meeting_date || "").getTime()).slice(0, 5);
@@ -429,14 +417,7 @@ export default function AdminInterviews() {
 		}
 	};
 
-	// Debug logging
-	console.log("AdminInterviews Debug:", {
-		user: user,
-		userRole: user?.role,
-		isAdmin: user?.role === 0,
-		access_token: access_token ? "present" : "missing",
-		loading: loading,
-	});
+	// Component state validated
 
 	// Show loading state while user data is being fetched
 	if (!user) {
@@ -655,8 +636,18 @@ export default function AdminInterviews() {
 						) : (
 							(() => {
 								try {
-									if (stats.total > 0 && progressChart && progressChart.series) {
-										return <Chart type="donut" series={progressChart.series} height={200} />;
+									if (stats.total > 0 && chartSeries.some((val) => val > 0)) {
+										return (
+											<Chart
+												type="donut"
+												series={chartSeries}
+												options={{
+													labels: ["Scheduled", "Completed", "Cancelled"],
+													colors: ["#3b82f6", "#10b981", "#ef4444"],
+												}}
+												height={200}
+											/>
+										);
 									}
 									return (
 										<div className="flex items-center justify-center h-48">
@@ -934,7 +925,16 @@ export default function AdminInterviews() {
 														>
 															<Icon icon="mdi:eye" className="h-4 w-4" />
 														</ModernButton>
-														<ModernButton variant="ghost" size="sm" className="h-8 w-8 p-0" title="Update Status">
+														<ModernButton
+															variant="ghost"
+															size="sm"
+															className="h-8 w-8 p-0"
+															title="Edit Interview"
+															onClick={() => {
+																setSelectedInterview(interview);
+																setShowEditDialog(true);
+															}}
+														>
 															<Icon icon="mdi:pencil" className="h-4 w-4" />
 														</ModernButton>
 														{interview.meeting_link && (
@@ -1042,6 +1042,54 @@ export default function AdminInterviews() {
 					setSelectedInterview(null);
 				}}
 				accessToken={access_token}
+			/>
+
+			{/* Edit Interview Dialog */}
+			<EditInterviewDialog
+				interview={selectedInterview}
+				show={showEditDialog}
+				onClose={() => {
+					setShowEditDialog(false);
+					setSelectedInterview(null);
+				}}
+				onSuccess={() => {
+					// Refresh the interviews list
+					const fetchInterviews = async () => {
+						if (!user || user.role !== 0 || !access_token) return;
+
+						setLoading(true);
+						try {
+							const now = new Date();
+							const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+							let startDate: string | undefined;
+							let endDate: string | undefined;
+
+							if (timeFilter === "today") {
+								startDate = today.toISOString();
+								const endOfToday = new Date(today);
+								endOfToday.setHours(23, 59, 59, 999);
+								endDate = endOfToday.toISOString();
+							}
+
+							const result = await interviewService.getInterviewList(access_token, {
+								startDate,
+								endDate,
+								page: 1,
+								limit: 1000,
+							});
+
+							setInterviews(result.interviews);
+						} catch (error) {
+							console.error("Error fetching interviews:", error);
+							setError("Failed to fetch interviews");
+						} finally {
+							setLoading(false);
+						}
+					};
+
+					fetchInterviews();
+				}}
 			/>
 		</m.div>
 	);

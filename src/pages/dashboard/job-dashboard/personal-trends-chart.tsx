@@ -21,44 +21,39 @@ export default function PersonalTrendsChart({ monthlyTrends, loading = false, ti
 	const { mode } = useTheme();
 
 	const chartData = useMemo(() => {
-		if (!monthlyTrends || monthlyTrends.length === 0) {
-			// Default categories based on time period
-			let defaultCategories = [];
-			switch (timePeriod) {
-				case "today":
-					defaultCategories = ["00:00", "06:00", "12:00", "18:00", "24:00"];
-					break;
-				case "week":
-					defaultCategories = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-					break;
-				case "month":
-					defaultCategories = ["Week 1", "Week 2", "Week 3", "Week 4"];
-					break;
-				default:
-					defaultCategories = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-			}
+		// More strict check for real data - must have actual trends with meaningful data
+		const hasRealData =
+			monthlyTrends &&
+			monthlyTrends.length > 0 &&
+			monthlyTrends.some(
+				(trend) => trend && typeof trend.applications === "number" && typeof trend.interviews === "number" && (trend.applications > 0 || trend.interviews > 0),
+			);
 
+		if (!hasRealData) {
+			// Return empty data structure - we'll show a message instead of fake data
 			return {
 				series: [
-					{ name: "Applications", data: new Array(defaultCategories.length).fill(0) },
-					{ name: "Interviews", data: new Array(defaultCategories.length).fill(0) },
+					{ name: "Job Applications", data: [] },
+					{ name: "Interviews Scheduled", data: [] },
 				],
-				categories: defaultCategories,
+				categories: [],
+				hasData: false,
 			};
 		}
 
 		const categories = monthlyTrends.map((trend) => trend.label);
-		const applicationsData = monthlyTrends.map((trend) => trend.applications);
-		const interviewsData = monthlyTrends.map((trend) => trend.interviews);
+		const applicationsData = monthlyTrends.map((trend) => trend.applications || 0);
+		const interviewsData = monthlyTrends.map((trend) => trend.interviews || 0);
 
 		return {
 			series: [
-				{ name: "Applications", data: applicationsData },
-				{ name: "Interviews", data: interviewsData },
+				{ name: "Job Applications", data: applicationsData },
+				{ name: "Interviews Scheduled", data: interviewsData },
 			],
 			categories,
+			hasData: true,
 		};
-	}, [monthlyTrends, timePeriod]);
+	}, [monthlyTrends]);
 
 	const chartOptions = useMemo(
 		() => ({
@@ -104,11 +99,36 @@ export default function PersonalTrendsChart({ monthlyTrends, loading = false, ti
 			tooltip: {
 				theme: mode,
 				x: {
-					show: false,
+					show: true,
 				},
-				marker: { show: false },
+				marker: { show: true },
 				y: {
-					formatter: (value: number) => `${value} ${value === 1 ? "item" : "items"}`,
+					formatter: (value: number, { seriesIndex }: { seriesIndex: number }) => {
+						const type = seriesIndex === 0 ? "application" : "interview";
+						const plural = value === 1 ? type : `${type}s`;
+						return `${value} ${plural}`;
+					},
+				},
+				custom: ({ series, seriesIndex, dataPointIndex, w }: any) => {
+					const category = w.globals.categoryLabels[dataPointIndex];
+					const applications = series[0][dataPointIndex];
+					const interviews = series[1][dataPointIndex];
+
+					return `
+						<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-lg">
+							<div class="font-semibold text-gray-900 dark:text-gray-100 mb-2">${category}</div>
+							<div class="space-y-1">
+								<div class="flex items-center gap-2">
+									<div class="w-3 h-3 rounded-full bg-blue-500"></div>
+									<span class="text-sm text-gray-700 dark:text-gray-300">${applications} job application${applications === 1 ? "" : "s"}</span>
+								</div>
+								<div class="flex items-center gap-2">
+									<div class="w-3 h-3 rounded-full bg-green-500"></div>
+									<span class="text-sm text-gray-700 dark:text-gray-300">${interviews} interview${interviews === 1 ? "" : "s"} scheduled</span>
+								</div>
+							</div>
+						</div>
+					`;
 				},
 			},
 			legend: {
@@ -167,25 +187,68 @@ export default function PersonalTrendsChart({ monthlyTrends, loading = false, ti
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
 					<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Chart icon">
-						<title>Chart</title>
-						<path
-							strokeLinecap="round"
-							strokeLinejoin="round"
-							strokeWidth={2}
-							d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
-						/>
+						<title>Activity Trends Chart</title>
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18" />
 					</svg>
-					Personal Trends
+					Activity Trends
+					<Text className="text-sm text-muted-foreground font-normal ml-2">
+						({timePeriod === "today" ? "Today" : timePeriod === "week" ? "This Week" : timePeriod === "month" ? "This Month" : "All Time"})
+					</Text>
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
-				{monthlyTrends && monthlyTrends.length > 0 ? (
-					<Chart type="line" series={chartData.series} options={chartOptions} height={280} />
+				{chartData.hasData ? (
+					<div>
+						<div className="mb-4">
+							<Text className="text-sm text-muted-foreground">
+								Track your job search activity over time. The chart shows when you submitted applications and scheduled interviews.
+							</Text>
+						</div>
+						<Chart type="line" series={chartData.series} options={chartOptions} height={280} />
+						<div className="mt-4 flex items-center justify-center gap-6 text-sm">
+							<div className="flex items-center gap-2">
+								<div className="w-3 h-3 rounded-full bg-blue-500" />
+								<span className="text-muted-foreground">Job Applications</span>
+							</div>
+							<div className="flex items-center gap-2">
+								<div className="w-3 h-3 rounded-full bg-green-500" />
+								<span className="text-muted-foreground">Interviews Scheduled</span>
+							</div>
+						</div>
+					</div>
 				) : (
 					<div className="h-64 flex items-center justify-center">
-						<div className="text-center">
-							<Text className="text-muted-foreground mb-2">No trend data available</Text>
-							<Text className="text-sm text-muted-foreground">Start applying to jobs to see your trends</Text>
+						<div className="text-center space-y-4">
+							<div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto">
+								<svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Chart placeholder">
+									<title>No Data Chart Icon</title>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"
+									/>
+								</svg>
+							</div>
+							<div>
+								<Text className="text-lg font-semibold mb-2">No Activity Data Yet</Text>
+								<Text className="text-muted-foreground mb-4 max-w-sm">
+									Your activity trends will appear here once you start submitting job applications and scheduling interviews.
+								</Text>
+								<div className="space-y-2">
+									<div className="flex items-center gap-2 text-sm text-muted-foreground justify-center">
+										<div className="w-3 h-3 rounded-full bg-blue-500" />
+										<span>Job Applications Submitted</span>
+									</div>
+									<div className="flex items-center gap-2 text-sm text-muted-foreground justify-center">
+										<div className="w-3 h-3 rounded-full bg-green-500" />
+										<span>Interviews Scheduled</span>
+									</div>
+								</div>
+								<div className="mt-4">
+									<Text className="text-xs text-muted-foreground">Start by creating job applications or scheduling interviews to see your trends</Text>
+								</div>
+							</div>
 						</div>
 					</div>
 				)}

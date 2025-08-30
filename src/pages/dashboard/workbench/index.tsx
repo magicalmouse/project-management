@@ -187,7 +187,7 @@ export default function Workbench() {
 										yaxis: { show: false },
 										tooltip: { enabled: false },
 									})}
-									series={[{ data: stat.chart }]}
+									series={[{ name: "Data", data: stat.chart }]}
 								/>
 							</div>
 						</CardContent>
@@ -270,7 +270,7 @@ export default function Workbench() {
 								yaxis: { show: false },
 								tooltip: { enabled: false },
 							})}
-							series={[{ data: [10, 20, 15, 30, 25, 40, 35, 20] }]}
+							series={[{ name: "Data", data: [10, 20, 15, 30, 25, 40, 35, 20] }]}
 						/>
 					</div>
 				</Card>

@@ -9,6 +9,7 @@ export const frontendDashboardRoutes: RouteObject[] = [
 	// { path: "workbench", element: Component("/pages/dashboard/workbench") },
 
 	{ path: "admin-dashboard", element: Component("/pages/dashboard/admin") },
+	{ path: "admin-test", element: Component("/pages/dashboard/admin-test") },
 	{ path: "admin-proposals", element: Component("/pages/dashboard/admin-proposals") },
 	{ path: "admin-interviews", element: Component("/pages/dashboard/admin-interviews") },
 	// {

@@ -222,7 +222,7 @@ export default function InterviewsManagement({ timeFilter }: InterviewsManagemen
 						<CardTitle>Interview Progress</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<Chart type="donut" series={progressChart.series} height={250} />
+						<Chart type="donut" series={progressChart.series || []} height={250} />
 					</CardContent>
 				</Card>
 

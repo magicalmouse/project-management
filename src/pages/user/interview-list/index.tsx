@@ -3,7 +3,7 @@ import FormattedTextPDF from "@/components/FormattedTextPDF";
 import { useAuth } from "@/components/auth/use-auth";
 import Icon from "@/components/icon/icon";
 import InterviewModal, { type InterviewModalProps } from "@/pages/management/user/interview/detail/interview-modal";
-import userStore from "@/store/userStore";
+import userStore, { useUserToken } from "@/store/userStore";
 import type { InterviewInfo } from "@/types/entity";
 import { InterviewProgress } from "@/types/enum";
 import { Badge } from "@/ui/badge";
@@ -35,6 +35,7 @@ interface Interview {
 	notes?: string;
 	feedback?: string;
 	resume_link?: string;
+	selected_resume_id?: string;
 }
 
 const defaultInterviewValue: InterviewInfo = {
@@ -51,6 +52,7 @@ const defaultInterviewValue: InterviewInfo = {
 
 export default function InterviewList() {
 	const { user } = useAuth();
+	const { access_token } = useUserToken();
 	const navigate = useNavigate();
 	const [interviews, setInterviews] = useState<Interview[]>([]);
 	const [filteredInterviews, setFilteredInterviews] = useState<Interview[]>([]);
@@ -105,6 +107,7 @@ export default function InterviewList() {
 				notes: item.notes,
 				feedback: item.feedback,
 				resume_link: item.resume_link,
+				selected_resume_id: item.selected_resume_id,
 			}));
 
 			setInterviews(transformedData);
@@ -238,38 +241,39 @@ export default function InterviewList() {
 	const handleViewResume = (resumeLink: string | undefined) => {
 		if (!resumeLink) {
 			console.error("No resume link provided");
+			toast.error("No resume link available");
 			return;
 		}
 
-		// Get the auth token from the store
-		const userState = userStore.getState();
-		const token = userState.userToken?.access_token;
+		// Get the auth token from the hook (same as working job application)
+		const token = access_token;
 
-		console.log("🔐 Auth token check:", { hasToken: !!token, tokenLength: token?.length });
+		console.log("🔐 Auth token check:", {
+			hasToken: !!token,
+			tokenLength: token?.length,
+			fullToken: token ? `${token.substring(0, 20)}...` : "No token",
+		});
 
 		if (!token) {
-			toast.error("Authentication required to download resume");
+			toast.error("Authentication required to view resume");
 			return;
+		}
+
+		// Extract the path from the resume link (remove /api prefix if present)
+		let resumePath = resumeLink;
+		if (resumePath.startsWith("/api/")) {
+			resumePath = resumePath.substring(4); // Remove '/api/' prefix
 		}
 
 		// Construct the full URL to the resume PDF with auth token as query parameter
 		const baseUrl = window.location.origin;
-		const fullUrl = `${baseUrl}${resumeLink}?token=${encodeURIComponent(token)}`;
+		const fullUrl = `${baseUrl}/api/${resumePath}?token=${encodeURIComponent(token)}`;
 
-		console.log("🔗 Downloading PDF URL:", fullUrl);
+		console.log("🔗 Opening PDF URL:", fullUrl);
+		console.log("🔗 Original resume link was:", resumeLink);
 
-		// Create a temporary link element to trigger download
-		const link = document.createElement("a");
-		link.href = fullUrl;
-		link.download = `interview_resume_${new Date().toISOString().split("T")[0]}.pdf`;
-		link.target = "_blank";
-
-		// Append to body, click, and remove
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-
-		toast.success("Resume download started!");
+		// Open in new tab (same as working job application)
+		window.open(fullUrl, "_blank");
 	};
 
 	const handleViewDetails = (interview: Interview) => {
@@ -562,7 +566,7 @@ export default function InterviewList() {
 											</div>
 										</ModernTableHead>
 										<ModernTableHead>Job & Interviewer</ModernTableHead>
-										<ModernTableHead>Job Link</ModernTableHead>
+										<ModernTableHead>Resume</ModernTableHead>
 										<ModernTableHead className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors" onClick={() => handleSort("date")}>
 											<div className="flex items-center gap-2">
 												Meeting Date
@@ -620,15 +624,15 @@ export default function InterviewList() {
 												</div>
 											</ModernTableCell>
 											<ModernTableCell>
-												{interview.resume_link ? (
+												{interview.resume_link || interview.selected_resume_id ? (
 													<ModernButton
 														size="sm"
 														variant="ghost"
-														onClick={() => handleViewResume(interview.resume_link)}
+														onClick={() => handleViewResume(interview.resume_link || `/api/interviews/${interview.id}/scheduled-resume-pdf`)}
 														className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
 													>
-														<Icon icon="mdi:download" size={16} className="mr-1" />
-														Download Resume
+														<Icon icon="mdi:eye" size={16} className="mr-1" />
+														View Resume
 													</ModernButton>
 												) : (
 													<span className="text-gray-400 dark:text-gray-500 text-sm">No resume</span>

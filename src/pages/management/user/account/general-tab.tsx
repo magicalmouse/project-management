@@ -11,6 +11,7 @@ import { Switch } from "@/ui/switch";
 import { Textarea } from "@/ui/textarea";
 import { faker } from "@faker-js/faker";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -27,15 +28,29 @@ export default function GeneralTab() {
 	const { access_token } = useAuth();
 	const { id, avatar, username, email, country, summary } = useUserInfo();
 	console.log(avatar, username, email, country, summary);
+
 	const form = useForm<FieldType>({
 		defaultValues: {
-			username: username ?? "",
-			email,
-			country: country ?? "",
+			username: "",
+			email: "",
+			country: "",
 			status: BasicStatus.ENABLE,
-			summary: summary ?? "",
+			summary: "",
 		},
 	});
+
+	// Update form values when user data loads
+	useEffect(() => {
+		if (username !== undefined || email !== undefined || country !== undefined || summary !== undefined) {
+			form.reset({
+				username: username ?? "",
+				email: email ?? "",
+				country: country ?? "",
+				status: BasicStatus.ENABLE,
+				summary: summary ?? "",
+			});
+		}
+	}, [username, email, country, summary, form]);
 
 	const onSubmit = async (values: FieldType) => {
 		const profile: Partial<UserInfo> = {

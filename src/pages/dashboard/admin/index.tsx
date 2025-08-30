@@ -1,6 +1,6 @@
 import { useAuth } from "@/components/auth/use-auth";
 import { Chart } from "@/components/chart/chart";
-import { useChart } from "@/components/chart/useChart";
+// import { useChart } from "@/components/chart/useChart"; // Not needed for direct chart config
 import Icon from "@/components/icon/icon";
 import { useRouter } from "@/routes/hooks";
 import { Badge } from "@/ui/badge";
@@ -103,62 +103,7 @@ export default function AdminDashboard() {
 		fetchAdminData();
 	}, [user, access_token]);
 
-	// Chart configurations with proper data handling
-	const applicationsChart = useChart({
-		series: [
-			{
-				name: "Applications",
-				data: dashboardStats?.applicationTrends?.map((trend) => trend.applications) || [0, 0, 0, 0, 0, 0, 0],
-			},
-			{
-				name: "Interviews",
-				data: dashboardStats?.applicationTrends?.map((trend) => trend.interviews) || [0, 0, 0, 0, 0, 0, 0],
-			},
-		],
-		xaxis: {
-			categories: dashboardStats?.applicationTrends?.map((trend) => trend.date) || ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-		},
-		colors: ["#3b82f6", "#10b981"],
-		stroke: {
-			curve: "smooth",
-			width: 3,
-		},
-	});
-
-	const statusChart = useChart({
-		series: [
-			dashboardStats?.applicationsByStatus?.applied || 0,
-			dashboardStats?.applicationsByStatus?.interviewing || 0,
-			dashboardStats?.applicationsByStatus?.offered || 0,
-			dashboardStats?.applicationsByStatus?.rejected || 0,
-		],
-		labels: ["Applied", "Interviewing", "Offered", "Rejected"],
-		colors: ["#3b82f6", "#f59e0b", "#10b981", "#ef4444"],
-		plotOptions: {
-			pie: {
-				donut: {
-					size: "70%",
-				},
-			},
-		},
-	});
-
-	const interviewProgressChart = useChart({
-		series: [
-			dashboardStats?.interviewsByProgress?.scheduled || 0,
-			dashboardStats?.interviewsByProgress?.completed || 0,
-			dashboardStats?.interviewsByProgress?.cancelled || 0,
-		],
-		labels: ["Scheduled", "Completed", "Cancelled"],
-		colors: ["#3b82f6", "#10b981", "#ef4444"],
-		plotOptions: {
-			pie: {
-				donut: {
-					size: "70%",
-				},
-			},
-		},
-	});
+	// Using direct ApexCharts configuration for all charts
 
 	// Calculate additional metrics
 	const totalApplications = dashboardStats?.totalApplications || allApplications.length;
@@ -311,7 +256,53 @@ export default function AdminDashboard() {
 							</CardTitle>
 						</CardHeader>
 						<CardContent className="pt-6">
-							<Chart type="line" series={applicationsChart.series} options={applicationsChart} height={300} />
+							{dashboardStats?.applicationTrends && dashboardStats.applicationTrends.length > 0 ? (
+								<Chart
+									type="line"
+									series={[
+										{
+											name: "Applications",
+											data: dashboardStats.applicationTrends?.map((trend) => trend.applications) || [],
+										},
+										{
+											name: "Interviews",
+											data: dashboardStats.applicationTrends?.map((trend) => trend.interviews) || [],
+										},
+									]}
+									options={{
+										chart: {
+											type: "line",
+											height: 300,
+										},
+										xaxis: {
+											categories: dashboardStats.applicationTrends?.map((trend) => trend.date) || [],
+										},
+										colors: ["#3b82f6", "#10b981"],
+										stroke: {
+											curve: "smooth",
+											width: 3,
+										},
+										dataLabels: {
+											enabled: false,
+										},
+										grid: {
+											strokeDashArray: 4,
+										},
+										legend: {
+											show: true,
+											position: "top",
+											// horizontalAlign: "right", // Not supported in custom chart
+										},
+										tooltip: {
+											shared: true,
+											intersect: false,
+										},
+									}}
+									height={300}
+								/>
+							) : (
+								<div className="h-[300px] flex items-center justify-center text-muted-foreground">No trend data available</div>
+							)}
 						</CardContent>
 					</Card>
 
@@ -324,7 +315,41 @@ export default function AdminDashboard() {
 							</CardTitle>
 						</CardHeader>
 						<CardContent className="pt-6">
-							<Chart type="donut" series={statusChart.series} options={statusChart} height={300} />
+							{dashboardStats?.applicationsByStatus ? (
+								<Chart
+									type="donut"
+									series={Object.values(dashboardStats.applicationsByStatus)}
+									options={{
+										chart: {
+											type: "donut",
+											height: 300,
+										},
+										labels: Object.keys(dashboardStats.applicationsByStatus),
+										colors: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"],
+										legend: {
+											show: true,
+											position: "bottom",
+										},
+										plotOptions: {
+											pie: {
+												donut: {
+													size: "65%",
+													labels: {
+														show: true,
+														total: {
+															show: true,
+															label: "Total",
+														},
+													},
+												},
+											},
+										},
+									}}
+									height={300}
+								/>
+							) : (
+								<div className="h-[300px] flex items-center justify-center text-muted-foreground">No application status data available</div>
+							)}
 						</CardContent>
 					</Card>
 
@@ -337,7 +362,41 @@ export default function AdminDashboard() {
 							</CardTitle>
 						</CardHeader>
 						<CardContent className="pt-6">
-							<Chart type="donut" series={interviewProgressChart.series} options={interviewProgressChart} height={300} />
+							{dashboardStats?.interviewsByProgress ? (
+								<Chart
+									type="donut"
+									series={Object.values(dashboardStats.interviewsByProgress)}
+									options={{
+										chart: {
+											type: "donut",
+											height: 300,
+										},
+										labels: Object.keys(dashboardStats.interviewsByProgress),
+										colors: ["#8b5cf6", "#06b6d4", "#f59e0b", "#ef4444"],
+										legend: {
+											show: true,
+											position: "bottom",
+										},
+										plotOptions: {
+											pie: {
+												donut: {
+													size: "65%",
+													labels: {
+														show: true,
+														total: {
+															show: true,
+															label: "Total",
+														},
+													},
+												},
+											},
+										},
+									}}
+									height={300}
+								/>
+							) : (
+								<div className="h-[300px] flex items-center justify-center text-muted-foreground">No interview progress data available</div>
+							)}
 						</CardContent>
 					</Card>
 
@@ -381,7 +440,7 @@ export default function AdminDashboard() {
 					</Card>
 				</div>
 
-				{/* Advanced Analytics */}
+				{/* Advanced Analytics - Temporarily disabled for debugging */}
 				<Card className="border-0 shadow-lg">
 					<CardHeader className="border-b border-gray-100">
 						<CardTitle className="flex items-center gap-2">

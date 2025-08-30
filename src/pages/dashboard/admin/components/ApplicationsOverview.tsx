@@ -184,7 +184,7 @@ export default function ApplicationsOverview({ timeFilter }: ApplicationsOvervie
 						<CardTitle>Application Status Distribution</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<Chart type="donut" series={statusChart.series} height={300} />
+						<Chart type="donut" series={statusChart.series || []} height={300} />
 					</CardContent>
 				</Card>
 
