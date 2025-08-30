@@ -520,8 +520,8 @@ async function getScheduledResumePDFFile(req, res) {
 		console.log("🔍 Token found:", !!token);
 		console.log("🔍 Token from query:", !!req.query.token);
 		console.log("🔍 Token from header:", !!req.headers.authorization);
-		console.log("🔍 Raw query token (first 50 chars):", req.query.token ? req.query.token.substring(0, 50) + "..." : "none");
-		console.log("🔍 Raw auth header:", req.headers.authorization ? req.headers.authorization.substring(0, 50) + "..." : "none");
+		console.log("🔍 Raw query token (first 50 chars):", req.query.token ? `${req.query.token.substring(0, 50)}...` : "none");
+		console.log("🔍 Raw auth header:", req.headers.authorization ? `${req.headers.authorization.substring(0, 50)}...` : "none");
 
 		if (!token) {
 			console.log("🔍 No token found, returning 401");

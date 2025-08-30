@@ -140,8 +140,8 @@ app.delete("/api/interviews/:id", authenticateToken, interviewController.deleteI
 app.get("/api/interviews/:id/scheduled-resume", authenticateToken, interviewController.getScheduledResume);
 app.get("/api/interviews/:id/scheduled-resume-pdf", interviewController.getScheduledResumePDFFile);
 app.get("/api/test-resume/:filename", (req, res) => {
-	const fs = require("fs");
-	const path = require("path");
+	const fs = require("node:fs");
+	const path = require("node:path");
 	const { filename } = req.params;
 
 	console.log("🔍 Test endpoint called for filename:", filename);

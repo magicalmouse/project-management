@@ -81,13 +81,13 @@ export default function EditInterviewDialog({ interview, show, onClose, onSucces
 			// Combine date and time
 			const meetingDateTime = new Date(`${data.meeting_date}T${data.meeting_time}`);
 
-			const updateData = {
+			const updateData: Partial<InterviewInfo> = {
 				meeting_title: data.meeting_title,
 				meeting_date: meetingDateTime.toISOString(),
-				meeting_link: data.meeting_link || null,
+				meeting_link: data.meeting_link || undefined,
 				interviewer: data.interviewer,
 				progress: Number.parseInt(data.progress),
-				notes: data.notes || null,
+				notes: data.notes || undefined,
 			};
 
 			await interviewService.updateInterview(interview.id, updateData, access_token);

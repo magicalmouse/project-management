@@ -15,7 +15,7 @@ async function getDashboardStats(userId, userRole, timePeriod = "month") {
 	console.log(`📊 Dashboard Debug - User ${userId}:`);
 	console.log(`   Total interviews in DB: ${interviews.length}`);
 	console.log(
-		`   Interview details:`,
+		"   Interview details:",
 		interviews.map((i) => ({
 			id: i.id,
 			meeting_title: i.meeting_title,
@@ -31,7 +31,7 @@ async function getDashboardStats(userId, userRole, timePeriod = "month") {
 		success: interviews.filter((i) => i.progress === 1 || i.progress === "1" || i.progress === "SUCCESS").length,
 		fail: interviews.filter((i) => i.progress === 2 || i.progress === "2" || i.progress === "FAIL").length,
 	};
-	console.log(`   Progress counts:`, progressCounts);
+	console.log("   Progress counts:", progressCounts);
 	console.log(`   Total should be: ${progressCounts.pending + progressCounts.success + progressCounts.fail}`);
 
 	// Users (admin only)
@@ -219,7 +219,7 @@ async function getDashboardStats(userId, userRole, timePeriod = "month") {
 	};
 
 	// Debug the progress breakdown
-	console.log(`   Final interviewsByProgress:`, interviewsByProgress);
+	console.log("   Final interviewsByProgress:", interviewsByProgress);
 	console.log(`   Total calculated: ${interviewsByProgress.scheduled + interviewsByProgress.completed + interviewsByProgress.cancelled}`);
 
 	// Admin analytics
