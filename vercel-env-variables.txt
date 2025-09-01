@@ -5,3 +5,9 @@ DATABASE_URL=postgresql://postgres:Apple@1663@db.zcxkzwbldehrfbsyrccy.supabase.c
 NODE_ENV=production
 JWT_SECRET=MySecureProjectManagementJWTSecret2024Apple1663
 CORS_ORIGIN=https://your-project-name.vercel.app
+
+# SUPERADMIN LOGIN (after deployment):
+# Username: admin
+# Password: admin123
+# Email: admin@projectmanagement.com
+# ⚠️ CHANGE PASSWORD AFTER FIRST LOGIN!

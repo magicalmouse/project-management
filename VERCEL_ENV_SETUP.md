@@ -123,9 +123,13 @@ Visit: `https://your-project-name.vercel.app/api/test-supabase`
 ### 5.2 Access Your App
 Visit: `https://your-project-name.vercel.app`
 
-**Default Login:**
-- Username: `admin`
-- Password: `admin123`
+**🔑 SUPERADMIN LOGIN (First Deployment):**
+- **Username**: `admin`
+- **Password**: `admin123`
+- **Email**: `admin@projectmanagement.com`
+- **Role**: `admin` (full system access)
+
+⚠️ **IMPORTANT**: Change this password immediately after first login for security!
 
 ## 🔧 Updated Database Connection Code
 

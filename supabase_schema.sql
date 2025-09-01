@@ -194,7 +194,7 @@ CREATE TRIGGER update_proposals_updated_at BEFORE UPDATE ON proposals FOR EACH R
 -- Insert default admin user (password: admin123)
 -- Note: Change this password immediately after first login
 INSERT INTO users (username, email, password_hash, full_name, role, is_active) VALUES 
-('admin', 'admin@projectmanagement.com', '$2b$10$rQZ9vQZ9vQZ9vQZ9vQZ9vOZ9vQZ9vQZ9vQZ9vQZ9vQZ9vQZ9vQZ9v', 'System Administrator', 'admin', TRUE);
+('admin', 'admin@projectmanagement.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System Administrator', 'admin', TRUE);
 
 -- Insert sample data for demonstration
 INSERT INTO projects (name, description, status, priority, start_date, end_date, budget, created_by, assigned_to) VALUES 
