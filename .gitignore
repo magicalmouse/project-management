@@ -26,3 +26,31 @@ dist-ssr
 
 # vite build stats
 stats.html
+
+# Test and debug files
+test-*.js
+debug-*.js
+create-*.js
+check-*.js
+add-*.js
+fix-*.js
+link-*.js
+convert-*.js
+ensure-*.js
+extract-*.js
+regenerate-*.js
+seed.js
+*.test.js
+*.spec.js
+
+# Development files
+start-dev.ps1
+setup.sh
+testConnection.js
+createAdmin.js
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup

@@ -1,0 +1,28 @@
+# Docker Compose Override for Development
+# This file is automatically loaded by docker-compose for development overrides
+version: '3.8'
+
+services:
+  backend:
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+    command: npm run dev
+    
+  database:
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/dev-data:/docker-entrypoint-initdb.d
+      
+  frontend:
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+    command: npm run dev
+    ports:
+      - "3001:3001"
