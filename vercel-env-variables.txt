@@ -1,0 +1,7 @@
+# Copy these environment variables to Vercel
+# Go to: Vercel Dashboard → Your Project → Settings → Environment Variables
+
+DATABASE_URL=postgresql://postgres:Apple@1663@db.zcxkzwbldehrfbsyrccy.supabase.co:5432/postgres
+NODE_ENV=production
+JWT_SECRET=MySecureProjectManagementJWTSecret2024Apple1663
+CORS_ORIGIN=https://your-project-name.vercel.app
