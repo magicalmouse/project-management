@@ -7,7 +7,9 @@
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
-		"preinstall": "lefthook install"
+		"preinstall": "lefthook install",
+		"vercel-build": "npm run build",
+		"start": "node api/index.js"
 	},
 	"dependencies": {
 		"@ant-design/cssinjs": "^1.22.0",
