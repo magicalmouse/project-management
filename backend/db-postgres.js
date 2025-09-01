@@ -10,7 +10,7 @@ const pool = new Pool({
 	ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
 	max: 10, // Maximum number of connections
 	idleTimeoutMillis: 30000,
-	connectionTimeoutMillis: 2000,
+	connectionTimeoutMillis: 10000, // Increased from 2s to 10s for serverless
 });
 
 // Query function
@@ -40,11 +40,25 @@ async function getClient() {
 // Test connection
 async function testConnection() {
 	try {
-		const result = await query("SELECT NOW() as current_time, version() as postgres_version");
-		console.log("Database connected successfully:", result[0]);
-		return true;
+		// Direct connection test without using the query function
+		const client = await pool.connect();
+		try {
+			const result = await client.query("SELECT NOW() as current_time, version() as postgres_version");
+			console.log("Database connected successfully:", result.rows[0]);
+			return true;
+		} finally {
+			client.release();
+		}
 	} catch (error) {
-		console.error("Database connection failed:", error);
+		console.error("Database connection failed:", error.message);
+		console.error("Error details:", {
+			code: error.code,
+			errno: error.errno,
+			syscall: error.syscall,
+			hostname: error.hostname,
+			address: error.address,
+			port: error.port,
+		});
 		return false;
 	}
 }
