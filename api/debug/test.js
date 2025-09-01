@@ -19,50 +19,48 @@ export default async function handler(req, res) {
 			DATABASE_URL_preview: process.env.DATABASE_URL ? `${process.env.DATABASE_URL.substring(0, 30)}...` : "NOT SET",
 		};
 
-		// Try to import database module
+		// Try to import database module and test connection
 		let dbStatus = "NOT_TESTED";
 		let dbError = null;
 		let errorDetails = null;
 
 		try {
-			// First, try to import the database module
-			const { query, testConnection } = await import("../../backend/db-postgres.js");
+			// Import the database module
+			const { pool } = await import("../../backend/db-postgres.js");
 
-			// Test basic connection first
-			const isConnected = await testConnection();
-			if (!isConnected) {
-				dbStatus = "CONNECTION_FAILED";
-				dbError = "testConnection() returned false";
-			} else {
-				// Test simple query
-				const result = await query("SELECT NOW() as current_time, version() as postgres_version, current_database() as database_name");
+			// Test direct pool connection to get actual error details
+			const client = await pool.connect();
+			try {
+				const result = await client.query("SELECT NOW() as current_time, version() as postgres_version, current_database() as database_name");
 				dbStatus = "CONNECTED";
 
 				// Get table list to verify schema
-				const tableResult = await query(`
+				const tableResult = await client.query(`
 					SELECT tablename FROM pg_catalog.pg_tables
 					WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'
 					ORDER BY tablename;
 				`);
-				const tables = tableResult.map((row) => row.tablename);
+				const tables = tableResult.rows.map((row) => row.tablename);
 
 				return res.json({
 					success: true,
 					environment: envCheck,
 					database: {
 						status: dbStatus,
-						connection_test: result[0],
+						connection_test: result.rows[0],
 						tables: tables,
 						table_count: tables.length,
 						timestamp: new Date().toISOString(),
 					},
 				});
+			} finally {
+				client.release();
 			}
 		} catch (error) {
-			dbStatus = "ERROR";
+			dbStatus = "CONNECTION_ERROR";
 			dbError = error.message;
 
-			// Add more detailed error information
+			// Add comprehensive error information
 			errorDetails = {
 				message: error.message,
 				code: error.code || "NO_CODE",
@@ -71,6 +69,8 @@ export default async function handler(req, res) {
 				hostname: error.hostname || "NO_HOSTNAME",
 				address: error.address || "NO_ADDRESS",
 				port: error.port || "NO_PORT",
+				stack: error.stack ? error.stack.substring(0, 1000) : "NO_STACK",
+				name: error.name || "NO_NAME",
 			};
 		}
 
