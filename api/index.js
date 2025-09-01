@@ -3,6 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const path = require("node:path");
 
+// Load environment variables
+require("dotenv").config();
+
 // Import your existing server logic
 const app = express();
 
