@@ -1,6 +1,6 @@
 // Vercel Serverless Function - Get Current User
-const jwt = require("jsonwebtoken");
-const { query } = require("../../backend/db-postgres");
+import jwt from "jsonwebtoken";
+import { query } from "../../backend/db-postgres.js";
 
 export default async function handler(req, res) {
 	// Set CORS headers

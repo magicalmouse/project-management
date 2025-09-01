@@ -1,6 +1,8 @@
 // PostgreSQL Database Connection for Supabase
-const { Pool } = require("pg");
-require("dotenv").config();
+import { Pool } from "pg";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Create connection pool
 const pool = new Pool({
@@ -54,9 +56,4 @@ process.on("SIGINT", async () => {
 	process.exit(0);
 });
 
-module.exports = {
-	pool,
-	query,
-	getClient,
-	testConnection,
-};
+export { pool, query, getClient, testConnection };

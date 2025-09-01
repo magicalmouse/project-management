@@ -1,7 +1,7 @@
 // Vercel Serverless Function - User Registration
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { query } = require("../../backend/db-postgres");
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { query } from "../../backend/db-postgres.js";
 
 export default async function handler(req, res) {
 	// Set CORS headers

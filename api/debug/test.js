@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 		let dbError = null;
 
 		try {
-			const { query } = require("../../backend/db-postgres");
+			const { query } = await import("../../backend/db-postgres.js");
 
 			// Test simple query
 			const result = await query("SELECT NOW() as current_time, version() as postgres_version");
