@@ -22,39 +22,70 @@ export default async function handler(req, res) {
 		// Try to import database module
 		let dbStatus = "NOT_TESTED";
 		let dbError = null;
+		let errorDetails = null;
 
 		try {
-			const { query } = await import("../../backend/db-postgres.js");
+			// First, try to import the database module
+			const { query, testConnection } = await import("../../backend/db-postgres.js");
 
-			// Test simple query
-			const result = await query("SELECT NOW() as current_time, version() as postgres_version");
-			dbStatus = "CONNECTED";
+			// Test basic connection first
+			const isConnected = await testConnection();
+			if (!isConnected) {
+				dbStatus = "CONNECTION_FAILED";
+				dbError = "testConnection() returned false";
+			} else {
+				// Test simple query
+				const result = await query("SELECT NOW() as current_time, version() as postgres_version, current_database() as database_name");
+				dbStatus = "CONNECTED";
 
-			res.json({
-				success: true,
-				environment: envCheck,
-				database: {
-					status: dbStatus,
-					connection_test: result[0],
-					timestamp: new Date().toISOString(),
-				},
-			});
+				// Get table list to verify schema
+				const tableResult = await query(`
+					SELECT tablename FROM pg_catalog.pg_tables
+					WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema'
+					ORDER BY tablename;
+				`);
+				const tables = tableResult.map((row) => row.tablename);
+
+				return res.json({
+					success: true,
+					environment: envCheck,
+					database: {
+						status: dbStatus,
+						connection_test: result[0],
+						tables: tables,
+						table_count: tables.length,
+						timestamp: new Date().toISOString(),
+					},
+				});
+			}
 		} catch (error) {
 			dbStatus = "ERROR";
 			dbError = error.message;
 
-			res.status(500).json({
-				success: false,
-				environment: envCheck,
-				database: {
-					status: dbStatus,
-					error: dbError,
-					timestamp: new Date().toISOString(),
-				},
-			});
+			// Add more detailed error information
+			errorDetails = {
+				message: error.message,
+				code: error.code || "NO_CODE",
+				errno: error.errno || "NO_ERRNO",
+				syscall: error.syscall || "NO_SYSCALL",
+				hostname: error.hostname || "NO_HOSTNAME",
+				address: error.address || "NO_ADDRESS",
+				port: error.port || "NO_PORT",
+			};
 		}
+
+		return res.status(500).json({
+			success: false,
+			environment: envCheck,
+			database: {
+				status: dbStatus,
+				error: dbError,
+				error_details: errorDetails,
+				timestamp: new Date().toISOString(),
+			},
+		});
 	} catch (error) {
-		res.status(500).json({
+		return res.status(500).json({
 			success: false,
 			error: "Debug endpoint failed",
 			details: error.message,
