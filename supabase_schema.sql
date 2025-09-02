@@ -11,7 +11,7 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(100),
-    role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('admin', 'manager', 'user')),
+    role INTEGER DEFAULT 1 CHECK (role IN (0, 1)), -- 0=admin, 1=user
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
@@ -194,7 +194,7 @@ CREATE TRIGGER update_proposals_updated_at BEFORE UPDATE ON proposals FOR EACH R
 -- Insert default admin user (password: admin123)
 -- Note: Change this password immediately after first login
 INSERT INTO users (username, email, password_hash, full_name, role, is_active) VALUES 
-('admin', 'admin@projectmanagement.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System Administrator', 'admin', TRUE);
+('admin', 'admin@projectmanagement.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'System Administrator', 0, TRUE);
 
 -- Insert sample data for demonstration
 INSERT INTO projects (name, description, status, priority, start_date, end_date, budget, created_by, assigned_to) VALUES 

@@ -65,7 +65,7 @@ export default async function handler(req, res) {
 				userId: user.id,
 				email: user.email,
 				username: user.username,
-				role: user.role === "admin" ? 0 : 1, // Convert role for JWT
+				role: user.role, // Use numeric role directly
 			},
 			process.env.JWT_SECRET,
 			{ expiresIn: "24h" },
@@ -100,7 +100,7 @@ export default async function handler(req, res) {
 				email: user.email,
 				username: user.username,
 				full_name: user.full_name,
-				role: user.role === "admin" ? 0 : 1, // Convert role: admin=0, others=1
+				role: user.role, // Use numeric role directly
 				created_at: user.created_at,
 			},
 			token,

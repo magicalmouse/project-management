@@ -61,7 +61,7 @@ export default async function handler(req, res) {
 				email: user.email,
 				username: user.username,
 				full_name: user.full_name,
-				role: user.role === "admin" ? 0 : 1, // Convert role: admin=0, others=1
+				role: user.role, // Use numeric role directly
 				phone: user.phone,
 				department: user.department,
 				position: user.position,
